@@ -2,12 +2,6 @@ import os
 
 from setuptools import setup, find_packages
 
-here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, 'README.txt')) as f:
-    README = f.read()
-with open(os.path.join(here, 'CHANGES.txt')) as f:
-    CHANGES = f.read()
-
 requires = [
     'pyramid',
     'pyramid_jinja2',
@@ -17,27 +11,35 @@ requires = [
     'transaction',
     'zope.sqlalchemy',
     'waitress',
-    ]
+]
 
 tests_require = [
     'WebTest >= 1.3.1',  # py3 compat
     'pytest',  # includes virtualenv
     'pytest-cov',
-    ]
+    'tox',
+]
 
 setup(name='GerryPy',
       version='0.0',
       description='GerryPy',
-      long_description=README + '\n\n' + CHANGES,
       classifiers=[
           "Programming Language :: Python",
           "Framework :: Pyramid",
           "Topic :: Internet :: WWW/HTTP",
           "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
       ],
-      author='',
-      author_email='',
-      url='',
+      author=['Jordan Schatzman',
+              'Julian Wilson',
+              'Patrick Saunders',
+              'Avery Pratt',
+              'Ford Fowler'],
+      author_email=['jo@gmail.com',
+                    'ju@gmail.com',
+                    'pa@gmail.com',
+                    'av@gmail.com',
+                    'fordjfowler@gmail.com'],
+      url='http://gerrypy.herokuapp.com/',
       keywords='web wsgi bfg pylons pyramid',
       packages=find_packages(),
       include_package_data=True,
@@ -50,6 +52,6 @@ setup(name='GerryPy',
       [paste.app_factory]
       main = gerrypy:main
       [console_scripts]
-      initialize_GerryPy_db = gerrypy.scripts.initializedb:main
+      initialize_db = gerrypy.scripts.initializedb:main
       """,
       )
