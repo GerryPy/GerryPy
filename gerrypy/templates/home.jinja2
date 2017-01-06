@@ -1,4 +1,7 @@
 {% extends "layout.jinja2" %}
+{% block css %}
+    <link href="{{ request.static_url('gerrypy:static/home.css') }}" rel="stylesheet">
+{% endblock %}
 {% block title %}
 GerryPy
 {% endblock %}
