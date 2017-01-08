@@ -1,6 +1,5 @@
-# Pseudo code:
-# This code assumes we will pull the data from our database before constructing the districts, but we could also substitute the node object with a database query.
-# Currently, this does not include any criteria for building the districts other than population
+"""Contains objects to pull tract information from database, compute new congressional districts,
+and store new information in a separate table."""
 
 
 class Node(object):
@@ -12,7 +11,12 @@ class Node(object):
 
 
 class District(object):
-    """A stucture to contain and separate tracts in a State object."""
+    """A stucture to contain and separate tracts in a State object.
+
+    add_node(self, node): adds node to nodes and updates district properties accordingly
+
+    rem_node(self, node): removes node from nodes and updates district properties accordingly
+    """
     nodes = []
     perimeter = []
 
@@ -31,7 +35,13 @@ class District(object):
 
 
 class State(object):
-    """Manages how tracts are distributed into districts in a particular state."""
+    """Manages how tracts are distributed into districts in a particular state.
+
+    build_district(self, start, population):
+    creates a new district stemming from the start node with a given population
+
+    fill_state(self): continues to build districts until all unoccupied tracts are claimed
+    """
     unoccupied = []
     districts = []
     population = 0
