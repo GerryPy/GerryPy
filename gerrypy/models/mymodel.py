@@ -1,18 +1,23 @@
+"""Define the models for the program."""
+
 from sqlalchemy import (
     Column,
     Index,
     Integer,
-    Text,
+    Float
 )
 
 from .meta import Base
 
 
-class MyModel(Base):
-    __tablename__ = 'models'
+class District(Base):
+    """Model for each district built by the program."""
+
+    __tablename__ = 'districts'
     id = Column(Integer, primary_key=True)
-    name = Column(Text)
-    value = Column(Integer)
+    district_number = Column(Integer)
+    area = Column(Float)
+    population = Column(Integer)
 
 
-Index('my_index', MyModel.name, unique=True, mysql_length=255)
+Index('district_num', District.district_number, unique=True, mysql_length=255)
