@@ -97,18 +97,9 @@ class State(object):
         """Build unoccupied district(s) for entire state."""
 
         fill_graph()
-        
-        for node in TRACTGRAPH.nodes():
-            added = False
-            for dist in self.unoccupied:
-                if node in dist:
-                    added = True
-            if not added:
-                nodes = nx.node_connected_component(self.graph, node)
-                dist = District(nodes)
-                self.unoccupied.append(dist)
-                self.population += dist.population
-
+        landmass = nx.connected_components(TRACTGRAPH)
+        for island in landmass:
+            self.unoccupied.append(District(island))
 
         # construct target districts
 
