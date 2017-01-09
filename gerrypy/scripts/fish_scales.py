@@ -1,16 +1,21 @@
-"""Contains objects to pull tract information from database, compute new congressional districts,
+"""Contains objects to pull tract information from database,
+compute new congressional districts,
 and store new information in a separate table."""
+from ..models import Tract, Edge
+import networkx as nx
 
 
 class Node(object):
     """Container for information about a given tract to populate District object."""
+
     def __init__(self, population, data):
+        """Duh."""
         self.population = population
         self.data = data
         self.neighbors = []
 
     def add_neighbors(self, neighbors):
-        """Adds a list of nodes adjacent to self."""
+        """Add a list of nodes adjacent to self."""
         self.neighbors.extend(neighbors)
 
 
@@ -21,20 +26,28 @@ class District(object):
 
     rem_node(self, node): removes node from nodes and updates district properties accordingly
     """
+
     nodes = []
     perimeter = []
 
-    def __init__(self):
+    def __init__(self, tracts=None):
+        """."""
         self.population = 0
+        if tracts:
+            try:
+                for tract in tracts:
+                    self.add_node(tract)
+            except TypeError:
+                raise TypeError('Tracts must be iterable.')
 
     def add_node(self, node):
-        """adds node to nodes and updates district properties accordingly"""
+        """Add node to nodes and updates district properties accordingly."""
         self.nodes.append(node)
         self.population += node.population
         # delete node and add node's new neighbors to self.perimeter
 
     def rem_node(self, node):
-        """removes node from nodes and updates district properties accordingly"""
+        """Remove node from nodes and updates district properties accordingly."""
         self.population -= node.population
         # remove node's neighbors from perimeter unless they border another node
         # add node to perimeter
@@ -48,22 +61,35 @@ class State(object):
 
     fill_state(self): continues to build districts until all unoccupied tracts are claimed
     """
+
     unoccupied = []
     districts = []
     population = 0
 
-    def __init__(self, graph, num_dst):
-        while len(self.unoccupied) < len(graph):
-            dst = District() # build a district with all nodes connected to (random) starting node
-            self.unoccupied.append(dst)
-        # self.population = (add populations from unoccupied districts)
-        self.num_dst = num_dst
+    def __init__(self, request, num_dst):
+        """Build unoccupied district(s) for entire state."""
+        self.graph = nx.Graph()
+        tracts = request.dbsession.query(Tract).all()  # get all tracts from db
+        edges = request.dbsession.query(Edge).all()  # get all edges from db
+
+        for tract in tracts:
+            self.graph.add_node(tract)
+        for edge in edges:
+            self.graph.add_edge(edge.source, edge.dest)
+
+        for node in self.graph.nodes():
+            for dist in self.unoccupied:
+                if node not in dist:
+                    subg = nx.node_connected_component(self.graph, node)
+                    new_dist = District(subg)
+                    self.population += new_dist.population
+                    self.unoccupied.append(new_dist)
 
     def build_district(self, start, population):
-        """creates a new district stemming from the start node with a given population"""
+        """Create a new district stemming from the start node with a given population."""
         dst = District()
         self.districts.append(dst)
-        while dst.population < population: #            ← This is vague criteria
+        while dst.population < population:  #        ← This is vague criteria
             # select the most appropriate node for the district to add
 
             # if the node borders a separate district or boundary,
@@ -75,9 +101,9 @@ class State(object):
             pass
 
     def fill_state(self):
-        """continues to build districts until all unoccupied tracts are claimed"""
+        """Build districts until all unoccupied tracts are claimed."""
         for num in range(self.num_dst):
-            start = Node(0, [], None) # node in self.districts[-1].perimeter
+            start = Node(0, [], None)  # node in self.districts[-1].perimeter
             # that doesn't belong to a district and has neighbors
             # from multiple districts or other borders (random node to start)
 
