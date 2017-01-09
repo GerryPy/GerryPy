@@ -33,7 +33,7 @@ class Tract(Base):
 class Edge(Base):
     """Edge model in the database."""
     __tablename__ = 'edge'
-    edge_id = Column(Integer, primary_key=True)
+    edgeid = Column(Integer, primary_key=True)
     tract_source = Column(Integer)
     tract_target = Column(Integer)
 

@@ -18,7 +18,7 @@ def configuration(request):
     This configuration will persist for the entire duration of your PyTest run.
     """
     config = testing.setUp(settings={
-        'sqlalchemy.url': 'postgres://jordan:password@localhost:5432/gerrypy_test'
+        'sqlalchemy.url': 'postgres://julienawilson:postword!!@localhost:5432/gerrypy_test'
     })
     config.include("gerrypy.models")
     config.include("gerrypy.routes")
