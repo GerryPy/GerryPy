@@ -1,5 +1,6 @@
 # """PyQGIS scripts for manipulting spatial data."""
 
+
 # from qgis.core import QgsProject, QgsDataSourceURI, QgsVectorLayer, QgsMapLayerRegistry
 # from PyQt4.QtCore import QFileInfo
 
