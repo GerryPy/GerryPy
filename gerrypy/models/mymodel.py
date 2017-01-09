@@ -22,12 +22,21 @@ class District(Base):
 
 
 class Tract(Base):
-    """Graph used to assign districts to tracts in the db."""
-    __tablename__ == 'colorado_tracts'
+    """Tract model in the db."""
+    __tablename__ = 'colorado_tracts'
     gid = Column(Integer, primary_key=True)
     districtid = Column(Integer)
     shape_area = Column(Numeric)
     tract_pop = Column(Integer)
+
+
+class Edge(Base):
+    """Edge model in the database."""
+    __tablename__ = 'edge'
+    edge_id = Column(Integer, primary_key=True)
+    tract_source = Column(Integer)
+    tract_target = Column(Integer)
+
 
     # def assign_distict(self, id):
     #     """Assign district to the tract."""
