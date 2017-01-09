@@ -27,12 +27,12 @@ class District(object):
         """adds node to nodes and updates district properties accordingly"""
         self.nodes.append(node)
         self.population += node.population
-        # delete node and add node’s new neighbors to self.perimeter
+        # delete node and add node's new neighbors to self.perimeter
 
     def rem_node(self, node):
         """removes node from nodes and updates district properties accordingly"""
         self.population -= node.population
-        # remove node’s neighbors from perimeter unless they border another node
+        # remove node's neighbors from perimeter unless they border another node
         # add node to perimeter
 
 
@@ -48,9 +48,7 @@ class State(object):
     districts = []
     population = 0
 
-    # Maybe num_dsts rather than dst_num done
     def __init__(self, graph, num_dst):
-        # I don’t get this while loop. This doesn’t matter for states like colorado, but for hawaii or michigan, where there are multiple separated areas, we need multiple unoccupied districts.
         while len(self.unoccupied) < len(graph):
             dst = District() # build a district with all nodes connected to (random) starting node
             self.unoccupied.append(dst)
@@ -63,14 +61,21 @@ class State(object):
         self.districts.append(dst)
         while dst.population < population: #            ← This is vague criteria
             # select the most appropriate node for the district to add
-            # if the node borders a separate district or boundary, split the unoccupied district that it is in, and evaluate whether or not node should be added.
+
+            # if the node borders a separate district or boundary,
+            # split the unoccupied district that it is in,
+            # and evaluate whether or not node should be added.
+
             # if appropriate, use dst.add_node() to add the most appropriate node in dst.perimeter
             # else decide the best thing to do             ← This is a BIG step
             pass
 
     def fill_state(self):
         """continues to build districts until all unoccupied tracts are claimed"""
-        for num in self.num_dst:
-            start = Node(0, [], None) # node in self.districts[-1].perimeter that doesn’t belong to a district and has neighbors from multiple districts or other borders (random node to start)
-            # if self.districts is empty, start will be a random border node on 
+        for num in range(self.num_dst):
+            start = Node(0, [], None) # node in self.districts[-1].perimeter
+            # that doesn't belong to a district and has neighbors
+            # from multiple districts or other borders (random node to start)
+
+            # if self.districts is empty, start will be a random border node on
             self.build_district(start, self.population // self.num_dst)
