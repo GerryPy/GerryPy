@@ -7,7 +7,7 @@ import networkx as nx
 
 TRACTGRAPH = nx.Graph()
 
-def fill_graph():
+def fill_graph(request):
     """"""""
     tracts = request.dbsession.query(Tract).all()  # get all tracts from db
     edges = request.dbsession.query(Edge).all()  # get all edges from db
@@ -96,7 +96,7 @@ class State(object):
     def __init__(self, request, num_dst):
         """Build unoccupied district(s) for entire state."""
 
-        fill_graph()
+        fill_graph(request)
         landmass = nx.connected_components(TRACTGRAPH)
         for island in landmass:
             self.unoccupied.append(District(island))
