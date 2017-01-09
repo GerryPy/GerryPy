@@ -6,15 +6,19 @@ from gerrypy.scripts.fish_scales import Node
 
 
 # Algorithm tests
-NEIGHBORS = [
-
-]
 
 
 NODES = [
     [123456, None],
     [200000, []],
     [200000, ["data"]],
+]
+
+
+NEIGHBORS = [
+    [],
+    [NODES[0]],
+    [NODES[0], NODES[1]]
 ]
 
 
@@ -42,6 +46,24 @@ NODE_LST = [
 
 
 BAD_NODES = [None, object, "string", 42, [], {}, [Node(1, None)]]
+
+
+@pytest.fixture
+def sample_state():
+    """Creates a list of nodes that are connected by borders like tracts in a state."""
+    nodes = [
+        Node(100, ["node 1"]),
+        Node(100, ["node 2"]),
+        Node(100, ["node 3"]),
+        Node(100, ["node 4"]),
+        Node(100, ["node 5"])
+    ]
+    nodes[0].add_neighbors([nodes[1], nodes[2], nodes[3], nodes[4]])
+    nodes[1].add_neighbors([nodes[4], nodes[2]])
+    nodes[2].add_neighbors([nodes[1], nodes[3]])
+    nodes[3].add_neighbors([nodes[2], nodes[4]])
+    nodes[4].add_neighbors([nodes[3], nodes[1]])
+    return nodes
 
 
 @pytest.mark.parametrize("pop, data", NODES)
@@ -111,15 +133,14 @@ def test_district_add_node_error(bad_node):
         dist.add_node(bad_node)
 
 
-# def test_district_rem_node():
-#     """Tests that district rem_node properly removes a node from nodes."""
-#     from gerrypy.scripts.fish_scales import District
-#     dist = District()
-#     node_lst = [Node(1, [], "data") * 10]
-#     for node in node_lst:
-#         dist.add_node(node)
-#     assert (
-#         dist.nodes == node_lst and
-#         dist.perimeter == [] and
-#         dist.population == 10
-#     )
+def test_district_rem_node(sample_state):
+    """Tests that district rem_node properly removes a node from nodes."""
+    from gerrypy.scripts.fish_scales import District
+    dist = District()
+    for node in sample_state:
+        dist.add_node(node)
+    assert (
+        dist.nodes == sample_state and
+        dist.perimeter == [] and
+        dist.population == 10
+    )
