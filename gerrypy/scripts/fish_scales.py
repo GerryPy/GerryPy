@@ -5,18 +5,31 @@ from ..models import Tract, Edge
 import networkx as nx
 
 
-class Node(object):
-    """Container for information about a given tract to populate District object."""
+TRACTGRAPH = nx.Graph()
 
-    def __init__(self, population, data):
-        """Duh."""
-        self.population = population
-        self.data = data
-        self.neighbors = []
+def fill_graph():
+    """"""""
+    tracts = request.dbsession.query(Tract).all()  # get all tracts from db
+    edges = request.dbsession.query(Edge).all()  # get all edges from db
 
-    def add_neighbors(self, neighbors):
-        """Add a list of nodes adjacent to self."""
-        self.neighbors.extend(neighbors)
+    for tract in tracts:
+        TRACTGRAPH.add_node(tract)
+    for edge in edges:
+        TRACTGRAPH.add_edge(edge.source, edge.dest)
+
+
+# class Node(object):
+#     """Container for information about a given tract to populate District object."""
+
+#     def __init__(self, population, data):
+#         """Duh."""
+#         self.population = population
+#         self.data = data
+#         self.neighbors = []
+
+#     def add_neighbors(self, neighbors):
+#         """Add a list of nodes adjacent to self."""
+#         self.neighbors.extend(neighbors)
 
 
 class District(object):
@@ -45,14 +58,26 @@ class District(object):
         self.nodes.append(node)
         self.population += node.population
         self.perimeter.remove(node)
-        for neigh in node.neighbors:
-            if neigh
+        neighbors = TRACTGRAPH.neighbors(node)
+        for neighbor in neighbors:
+            if neighbor not in self.nodes and neighbor not in self.perimeter:
+                self.perimeter.append(neighbor)
 
     def rem_node(self, node):
         """Remove node from nodes and updates district properties accordingly."""
         self.population -= node.population
-        # remove node's neighbors from perimeter unless they border another node
-        # add node to perimeter
+        self.perimeter.append(node)
+        self.nodes.remove(node)
+        neighbors = TRACTGRAPH.neighbors(node)
+        for neighbor in neighbors:
+            takeout = True
+            if neighbor in self.perimeter:
+                neighborneighbors = TRACTGRAPH.neighbors(neighbor)
+                for neighborneighbor in neighborneighbors:
+                    if neighborneighbor in self.nodes:
+                        takeout = False
+            if takeout:
+                self.perimeter.remove(neighbor)
 
 
 class State(object):
@@ -70,16 +95,10 @@ class State(object):
 
     def __init__(self, request, num_dst):
         """Build unoccupied district(s) for entire state."""
-        self.graph = nx.Graph()
-        tracts = request.dbsession.query(Tract).all()  # get all tracts from db
-        edges = request.dbsession.query(Edge).all()  # get all edges from db
 
-        for tract in tracts:
-            self.graph.add_node(tract)
-        for edge in edges:
-            self.graph.add_edge(edge.source, edge.dest)
+        fill_graph()
         
-        for node in self.graph.nodes():
+        for node in TRACTGRAPH.nodes():
             added = False
             for dist in self.unoccupied:
                 if node in dist:
@@ -90,16 +109,6 @@ class State(object):
                 self.unoccupied.append(dist)
                 self.population += dist.population
 
-
-        for node in self.graph.nodes():
-            for dist in self.unoccupied:
-                if node not in dist:
-                    nodes = nx.node_connected_component(self.graph, node)
-                    # for n in nodes:
-                    #     n.neighbors = 
-                    new_dist = District(nodes)
-                    self.population += new_dist.population
-                    self.unoccupied.append(new_dist)
 
         # construct target districts
 
