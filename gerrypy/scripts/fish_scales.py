@@ -4,10 +4,14 @@ and store new information in a separate table."""
 
 class Node(object):
     """Container for information about a given tract to populate District object."""
-    def __init__(self, population, neighbors, data):
+    def __init__(self, population, data):
         self.population = population
-        self.neighbors = neighbors
         self.data = data
+        self.neighbors = []
+
+    def add_neighbors(self, neighbors):
+        """Adds a list of nodes adjacent to self."""
+        self.neighbors.extend(neighbors)
 
 
 class District(object):
