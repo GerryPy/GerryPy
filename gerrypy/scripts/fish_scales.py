@@ -84,6 +84,8 @@ class State(object):
                     new_dist = District(subg)
                     self.population += new_dist.population
                     self.unoccupied.append(new_dist)
+        
+        # construct target districts
 
     def build_district(self, start, population):
         """Create a new district stemming from the start node with a given population."""
