@@ -44,7 +44,9 @@ class District(object):
         """Add node to nodes and updates district properties accordingly."""
         self.nodes.append(node)
         self.population += node.population
-        # delete node and add node's new neighbors to self.perimeter
+        self.perimeter.remove(node)
+        for neigh in node.neighbors:
+            if neigh
 
     def rem_node(self, node):
         """Remove node from nodes and updates district properties accordingly."""
@@ -76,15 +78,29 @@ class State(object):
             self.graph.add_node(tract)
         for edge in edges:
             self.graph.add_edge(edge.source, edge.dest)
+        
+        for node in self.graph.nodes():
+            added = False
+            for dist in self.unoccupied:
+                if node in dist:
+                    added = True
+            if not added:
+                nodes = nx.node_connected_component(self.graph, node)
+                dist = District(nodes)
+                self.unoccupied.append(dist)
+                self.population += dist.population
+
 
         for node in self.graph.nodes():
             for dist in self.unoccupied:
                 if node not in dist:
-                    subg = nx.node_connected_component(self.graph, node)
-                    new_dist = District(subg)
+                    nodes = nx.node_connected_component(self.graph, node)
+                    # for n in nodes:
+                    #     n.neighbors = 
+                    new_dist = District(nodes)
                     self.population += new_dist.population
                     self.unoccupied.append(new_dist)
-        
+
         # construct target districts
 
     def build_district(self, start, population):
