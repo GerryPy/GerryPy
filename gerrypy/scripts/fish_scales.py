@@ -160,10 +160,6 @@ class State(object):
     def build_district(self, start, population):
         """Create a new district stemming from the start node with a given population."""
 
-        # find starting tract
-        # def sort_by(tract):
-        #     return len(set(map(lambda x: x.districtid, TRACTGRAPH.neighbors(tract))))
-        # unoc_perimeter = sorted(self.unoccupied.perimeter, key=sort_by)
         dst = OccupiedDist()
         self.districts.append(dst)
         while dst.population < (self.target_pop - 1000):
@@ -193,8 +189,13 @@ class State(object):
         #     # else decide the best thing to do             ← This is a BIG step
         #     pass
 
-    # def fill_state(self):
-    #     """Build districts until all unoccupied tracts are claimed."""
+    def fill_state(self):
+        """Build districts until all unoccupied tracts are claimed."""
+
+        # find starting tract
+        def sort_by(tract):
+            return len(set(map(lambda x: x.districtid, TRACTGRAPH.neighbors(tract))))
+        unoc_perimeter = sorted(self.unoccupied.perimeter, key=sort_by)
     #     for num in range(self.num_dst):
     #         start = Node(0, [], None)  # node in self.districts[-1].perimeter
     #         # that doesn't belong to a district and has neighbors
