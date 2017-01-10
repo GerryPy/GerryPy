@@ -19,7 +19,7 @@ def configuration(request):
     This configuration will persist for the entire duration of your PyTest run.
     """
     config = testing.setUp(settings={
-        'sqlalchemy.url': os.environ['SQL_URL']
+        'sqlalchemy.url': os.environ['SQL_URL_TEST']
     })
     config.include("gerrypy.models")
     config.include("gerrypy.routes")
