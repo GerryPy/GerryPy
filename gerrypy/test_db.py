@@ -7,6 +7,7 @@ from gerrypy.models.meta import Base
 # from learning_journal.models.mymodel import Entry
 # from learning_journal.models.meta import Base
 import sys
+import os
 
 
 @pytest.fixture(scope="session")
@@ -19,7 +20,7 @@ def configuration(request):
     This configuration will persist for the entire duration of your PyTest run.
     """
     config = testing.setUp(settings={
-        'sqlalchemy.url': 'postgres://jordan@localhost:5432/gerrypy_test'
+        'sqlalchemy.url': os.environ['SQL_URL']
     })
     config.include("gerrypy.models")
     config.include("gerrypy.routes")
