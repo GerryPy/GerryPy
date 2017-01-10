@@ -12,12 +12,12 @@ def assign_district(request, graph):
 
 def populate_district_table(request, state):
     """Insert distrcts into district."""
-    District.query.delete()
+    request.dbsession.query(District).delete()
     for district in state.districts:
         # districtid =  district.districtid
         # population = district.population
         # area = district.shape_area
-        district = District(districtid=district.districtid,
+        district = District(id=district.districtid,
                             population=district.population,
                             area=district.shape_area)
         request.dbsession.add(district)
