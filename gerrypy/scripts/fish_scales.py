@@ -26,7 +26,7 @@ def fill_graph(request):
     return graph
 
 
-class District(object):
+class OccupiedDist(object):
     """A stucture to contain and separate tracts in a State object.
 
     add_node(self, node): adds node to nodes and updates district
@@ -38,7 +38,7 @@ class District(object):
 
     def __init__(self, tracts=None):
         """."""
-        self.nodes = []
+        self.nodes = nx.Graph()
         self.perimeter = []
         self.population = 0
         self.area = 0
@@ -52,21 +52,25 @@ class District(object):
 
     def add_node(self, node, graph):
         """Add node to nodes and updates district properties accordingly."""
-        self.nodes.append(node)
+        self.nodes.add_node(node)
+        edge_lst = graph.neighbors(node)
+        for edge in edge_lst:
+            if edge in self.nodes.nodes():
+                self.nodes.add_edge(edge, node)
         self.population += node.tract_pop
         self.area += node.shape_area
         if node in self.perimeter:
             self.perimeter.remove(node)
         neighbors = graph.neighbors(node)
         for neighbor in neighbors:
-            if neighbor not in self.nodes and neighbor not in self.perimeter:
+            if neighbor not in self.nodes.nodes() and neighbor not in self.perimeter:
                 self.perimeter.append(neighbor)
 
     def rem_node(self, node, graph):
         """Remove node from nodes and updates district properties accordingly."""
         self.population -= node.tract_pop
+        self.nodes.remove_node(node)
         self.area -= node.shape_area
-        self.nodes.remove(node)
         neighbors = graph.neighbors(node)
         to_perimeter = False
         for neighbor in neighbors:
@@ -74,11 +78,11 @@ class District(object):
             if neighbor in self.perimeter:
                 neighborneighbors = graph.neighbors(neighbor)
                 for neighborneighbor in neighborneighbors:
-                    if neighborneighbor in self.nodes:
+                    if neighborneighbor in self.nodes.nodes():
                         takeout = False
                 if takeout:
                     self.perimeter.remove(neighbor)
-            elif neighbor in self.nodes:
+            elif neighbor in self.nodes.nodes():
                 to_perimeter = True
         if to_perimeter:
             self.perimeter.append(node)
@@ -86,7 +90,7 @@ class District(object):
         #     import pdb; pdb.set_trace()
 
 
-class Unoc(District):
+class UnoccupiedDist(OccupiedDist):
     """A structure to contain tracts that haven't been claimed by a district.
 
     add_node(self, node): adds node to nodes and updates district
@@ -98,10 +102,10 @@ class Unoc(District):
 
     def add_node(self, node, graph):
         """Add node to nodes and updates district properties accordingly."""
-        self.nodes.append(node)
+        self.nodes.add_node(node)
         self.population += node.tract_pop
-        self.perimeter.append(node)
         neighbors = graph.neighbors(node)
+        to_add = False
         for neighbor in neighbors:
             takeout = True
             if neighbor in self.perimeter:
@@ -111,10 +115,14 @@ class Unoc(District):
                         takeout = False
                 if takeout:
                     self.perimeter.remove(neighbor)
+            if neighbor not in self.nodes:
+                to_add = True
+        if to_add:
+            self.perimeter.append(node)
 
     def rem_node(self, node, graph):
         """Remove node from nodes and updates district properties accordingly."""
-        self.nodes.remove(node)
+        self.nodes.remove_node(node)
         self.population -= node.tract_pop
         if node in self.perimeter:
             self.perimeter.remove(node)
@@ -143,7 +151,7 @@ class State(object):
         TRACTGRAPH = fill_graph(request)
         landmass = nx.connected_components(TRACTGRAPH)
         for island in landmass:
-            dist = District(island)
+            dist = OccupiedDist(island)
             self.population += dist.population
             self.unoccupied.append(dist)
 
@@ -151,7 +159,7 @@ class State(object):
 
     def build_district(self, start, population):
         """Create a new district stemming from the start node with a given population."""
-        dst = District()
+        dst = OccupiedDist()
         self.districts.append(dst)
         # while dst.population < population_share:  # ← This is vague criteria
         #     # select the most appropriate node for the district to add
