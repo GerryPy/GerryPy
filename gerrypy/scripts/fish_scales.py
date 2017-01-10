@@ -146,6 +146,7 @@ class State(object):
         self.unoccupied = []
         self.districts = []
         self.population = 0
+        self.area = 0
         global TRACTGRAPH
         TRACTGRAPH = fill_graph(request)
         landmass = nx.connected_components(TRACTGRAPH)
@@ -153,6 +154,7 @@ class State(object):
             dist = OccupiedDist(island)
             self.population += dist.population
             self.unoccupied.append(dist)
+            self.area += dist.area
         self.target_pop = self.population // num_dst
 
         # construct target districts
