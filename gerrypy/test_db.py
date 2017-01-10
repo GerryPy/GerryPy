@@ -166,7 +166,14 @@ def test_truncate_district_table(dummy_request):
 
 
 def test_populate_district_table(dummy_request, sample_state):
-    """Test creation of district table from State object."""
+    """Test district is correct length after population."""
     populate_district_table(dummy_request, sample_state)
     query = dummy_request.dbsession.query(District)
     assert query.count() == 3
+
+
+def test_populate_district_table_nonunique_id(dummy_request, sample_state):
+    """Test populate district adds correct data."""
+    populate_district_table(dummy_request, sample_state)
+    query = dummy_request.dbsession.query(District).get(2)
+    assert query.area == 250420
