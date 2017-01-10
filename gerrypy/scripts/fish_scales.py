@@ -47,11 +47,10 @@ class District(object):
     properties accordingly
     """
 
-    nodes = []
-    perimeter = []
-
     def __init__(self, tracts=None):
         """."""
+        self.nodes = []
+        self.perimeter = []
         self.population = 0
         if tracts:
             try:
@@ -97,12 +96,12 @@ class State(object):
     fill_state(self): continues to build districts until all unoccupied tracts are claimed
     """
 
-    unoccupied = []
-    districts = []
-    population = 0
 
     def __init__(self, request, num_dst):
         """Build unoccupied district(s) for entire state."""
+        self.unoccupied = []
+        self.districts = []
+        self.population = 0
         global TRACTGRAPH
         TRACTGRAPH = fill_graph(request)
         landmass = nx.connected_components(TRACTGRAPH)
