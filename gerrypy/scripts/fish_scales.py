@@ -76,6 +76,44 @@ class District(object):
                     self.perimeter.remove(neighbor)
 
 
+class Unoc(District):
+    """A structure to contain tracts that haven't been claimed by a district.
+
+    add_node(self, node): adds node to nodes and updates district
+    properties accordingly
+
+    rem_node(self, node): removes node from nodes and updates district
+    properties accordingly
+    """
+
+    def add_node(self, node, graph):
+        """Add node to nodes and updates district properties accordingly."""
+        self.nodes.append(node)
+        self.population += node.tract_pop
+        self.perimeter.append(node)
+        neighbors = graph.neighbors(node)
+        for neighbor in neighbors:
+            takeout = True
+            if neighbor in self.perimeter:
+                neighborneighbors = graph.neighbors(neighbor)
+                for neighborneighbor in neighborneighbors:
+                    if neighborneighbor not in self.nodes:
+                        takeout = False
+                if takeout:
+                    self.perimeter.remove(neighbor)
+
+    def rem_node(self, node, graph):
+        """Remove node from nodes and updates district properties accordingly."""
+        self.nodes.remove(node)
+        self.population -= node.tract_pop
+        if node in self.perimeter:
+            self.perimeter.remove(node)
+        neighbors = graph.neighbors(node)
+        for neighbor in neighbors:
+            if neighbor not in self.nodes and neighbor not in self.perimeter:
+                self.perimeter.append(neighbor)
+
+
 class State(object):
     """Manages how tracts are distributed into districts in a particular state.
 
@@ -150,7 +188,8 @@ class State(object):
         pass
 
     def splits_unoccupied(self, tract):
-        return {'add': True, 'splits':False}
+        add, splits = True, False
+        return {'add': add, 'splits': splits}
 
     @staticmethod
     def select_next(dst):
