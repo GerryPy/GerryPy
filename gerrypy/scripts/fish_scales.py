@@ -74,25 +74,47 @@ class District(object):
                         takeout = False
                 if takeout:
                     self.perimeter.remove(neighbor)
+        if len(self.nodes) == 1:
+            import pdb; pdb.set_trace()
 
 
-# class Unoc(object):
-#     """A structure to contain tracts that haven't been claimed by a district.
-    
-    
-#     """
+class Unoc(District):
+    """A structure to contain tracts that haven't been claimed by a district.
 
-#     def __init__(self, tracts=None):
-#         """."""
-#         self.nodes = []
-#         self.perimeter = []
-#         self.population = 0
-#         if tracts:
-#             try:
-#                 for tract in tracts:
-#                     self.add_node(tract, TRACTGRAPH)
-#             except TypeError:
-#                 raise TypeError('Tracts must be iterable.')
+    add_node(self, node): adds node to nodes and updates district
+    properties accordingly
+
+    rem_node(self, node): removes node from nodes and updates district
+    properties accordingly
+    """
+
+    def add_node(self, node, graph):
+        """Add node to nodes and updates district properties accordingly."""
+        self.nodes.append(node)
+        self.population += node.tract_pop
+        self.perimeter.append(node)
+        neighbors = graph.neighbors(node)
+        for neighbor in neighbors:
+            takeout = True
+            if neighbor in self.perimeter:
+                neighborneighbors = graph.neighbors(neighbor)
+                for neighborneighbor in neighborneighbors:
+                    if neighborneighbor not in self.nodes:
+                        takeout = False
+                if takeout:
+                    self.perimeter.remove(neighbor)
+
+    def rem_node(self, node, graph):
+        """Remove node from nodes and updates district properties accordingly."""
+        self.nodes.remove(node)
+        self.population -= node.tract_pop
+        if node in self.perimeter:
+            self.perimeter.remove(node)
+        neighbors = graph.neighbors(node)
+        for neighbor in neighbors:
+            if neighbor not in self.nodes and neighbor not in self.perimeter:
+                self.perimeter.append(neighbor)
+
 
 class State(object):
     """Manages how tracts are distributed into districts in a particular state.
