@@ -1,15 +1,15 @@
 """Test algorithm."""
 
 import pytest
-import os
 from pyramid import testing
-from gerrypy.models.mymodel import Tract, District, Edge
+from gerrypy.models.mymodel import Tract
 from gerrypy.models.meta import Base
 from gerrypy.test_db import db_session, configuration
 
 
 @pytest.fixture
 def dummy_request(db_session):
+    """Return dummy request dummy."""
     return testing.DummyRequest(dbsession=db_session)
 
 
