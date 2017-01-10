@@ -48,11 +48,10 @@ class District(object):
     properties accordingly
     """
 
-    nodes = []
-    perimeter = []
-
     def __init__(self, tracts=None):
         """."""
+        self.nodes = []
+        self.perimeter = []
         self.population = 0
         if tracts:
             try:
@@ -65,8 +64,7 @@ class District(object):
         """Add node to nodes and updates district properties accordingly."""
         self.nodes.append(node)
         self.population += node.tract_pop
-        if self.perimeter:
-            import pdb; pdb.set_trace()
+        if node in self.perimeter:
             self.perimeter.remove(node)
         neighbors = TRACTGRAPH.neighbors(node)
         for neighbor in neighbors:
@@ -99,12 +97,12 @@ class State(object):
     fill_state(self): continues to build districts until all unoccupied tracts are claimed
     """
 
-    unoccupied = []
-    districts = []
-    population = 0
 
     def __init__(self, request, num_dst):
         """Build unoccupied district(s) for entire state."""
+        self.unoccupied = []
+        self.districts = []
+        self.population = 0
         global TRACTGRAPH
         TRACTGRAPH = fill_graph(request)
         landmass = nx.connected_components(TRACTGRAPH)
@@ -117,16 +115,16 @@ class State(object):
         """Create a new district stemming from the start node with a given population."""
         dst = District()
         self.districts.append(dst)
-        while dst.population < population_share:  # ← This is vague criteria
-            # select the most appropriate node for the district to add
+        # while dst.population < population_share:  # ← This is vague criteria
+        #     # select the most appropriate node for the district to add
 
-            # if the node borders a separate district or boundary,
-            # split the unoccupied district that it is in,
-            # and evaluate whether or not node should be added.
+        #     # if the node borders a separate district or boundary,
+        #     # split the unoccupied district that it is in,
+        #     # and evaluate whether or not node should be added.
 
-            # if appropriate, use dst.add_node() to add the most appropriate node in dst.perimeter
-            # else decide the best thing to do             ← This is a BIG step
-            pass
+        #     # if appropriate, use dst.add_node() to add the most appropriate node in dst.perimeter
+        #     # else decide the best thing to do             ← This is a BIG step
+        #     pass
 
     # def fill_state(self):
     #     """Build districts until all unoccupied tracts are claimed."""
