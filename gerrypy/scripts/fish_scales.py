@@ -85,7 +85,6 @@ class State(object):
     fill_state(self): continues to build districts until all unoccupied tracts are claimed
     """
 
-
     def __init__(self, request, num_dst):
         """Build unoccupied district(s) for entire state."""
         self.unoccupied = []
@@ -98,13 +97,34 @@ class State(object):
             dist = District(island)
             self.population += dist.population
             self.unoccupied.append(dist)
+        self.target_pop = self.population // num_dst
 
         # construct target districts
 
     def build_district(self, start, population):
         """Create a new district stemming from the start node with a given population."""
+        # find starting tract
+        # def sort_by(tract):
+        #     return len(set(map(lambda x: x.districtid, TRACTGRAPH.neighbors(tract))))
+        # unoc_perimeter = sorted(self.unoccupied.perimeter, key=sort_by)
         dst = District()
         self.districts.append(dst)
+        while dst.population < (self.target_pop - 1000):
+            dont_add = set()
+            new_tract = State.select_next(dst)
+            if new_tract is None:
+                break
+            # not implemented yet
+            answer = self.splits_unoccupied(new_tract)
+            if answer['add']:
+                dst.add_node(new_tract)
+                for unoc_dst in self.unoccupied:
+                    if new_tract in unoc_dst.nodes:
+                        unoc_dst.rem_node(new_tract)
+            else:
+                dont_add.add(new_tract)
+                continue
+
         # while dst.population < population_share:  # ← This is vague criteria
         #     # select the most appropriate node for the district to add
 
@@ -125,3 +145,25 @@ class State(object):
 
     #         # if self.districts is empty, start will be a random border node on
     #         self.build_district(start, self.population // self.num_dst)
+
+    def split_unoccupied(self):
+        pass
+
+    def splits_unoccupied(self, tract):
+        return {'add': True, 'splits':False}
+
+    @staticmethod
+    def select_next(dst):
+        """Choose the next best tract to add to growing district."""
+        best_count = 0
+        best = None
+        for perimeter_tract in dst.perimeter:
+            if perimeter_tract.disrictid is None:
+                count = 0
+                for neighbor in perimeter_tract.neighbors():
+                    if neighbor.disrictid == dst.district_number:
+                        count += 1
+                if count > best_count:
+                    best_count = count
+                    best = perimeter_tract
+        return best
