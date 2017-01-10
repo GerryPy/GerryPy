@@ -64,7 +64,7 @@ def filled_graph(dummy_request):
 
 
 @pytest.fixture
-def sample_state():
+def sample_state(dummy_request):
     """Create a sample state with some district data."""
     test_district1 = OccupiedDist()
     test_district1.population = 500
@@ -78,14 +78,12 @@ def sample_state():
     test_district3.population = 123
     test_district3.area = 456
     test_district3.districtID = 789
-    test_state = State()
+    test_state = State(dummy_request, 7)
     test_state.districts.extend([test_district1, test_district2, test_district3])
     return test_state
 
 
-
 # ------DB Tests--------
-
 
 def test_database_has_tracts(db_session):
     """Test that database has contents."""
@@ -165,3 +163,10 @@ def test_truncate_district_table(dummy_request):
     dummy_request.dbsession.add(test_row2)
     dummy_request.dbsession.query(District).delete()
     assert dummy_request.dbsession.query(District).count() == 0
+
+
+def test_populate_district_table(dummy_request, sample_state):
+    """Test creation of district table from State object."""
+    populate_district_table(dummy_request, sample_state)
+    query = dummy_request.dbsession.query(District)
+    assert query.count() == 3

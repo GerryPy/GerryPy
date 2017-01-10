@@ -17,9 +17,9 @@ def populate_district_table(request, state):
         # districtid =  district.districtid
         # population = district.population
         # area = district.shape_area
-        district = District(id=district.districtid,
+        district = District(id=district.districtID,
                             population=district.population,
-                            area=district.shape_area)
+                            area=district.area)
         request.dbsession.add(district)
 
 
