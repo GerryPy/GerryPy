@@ -3,10 +3,12 @@ import transaction
 from pyramid import testing
 from gerrypy.models.mymodel import Tract, District, Edge
 from gerrypy.models.meta import Base
+from gerrypy.graph_db_interact.assigndistrict import assign_district
 # from learning_journal.models.mymodel import Entry
 # from learning_journal.models.meta import Base
 import sys
 import os
+import networkx as nx
 
 
 @pytest.fixture(scope="session")
@@ -19,7 +21,7 @@ def configuration(request):
     This configuration will persist for the entire duration of your PyTest run.
     """
     config = testing.setUp(settings={
-        'sqlalchemy.url': os.environ['SQL_URL']
+        'sqlalchemy.url': os.environ['SQL_URL_TEST']
     })
     config.include("gerrypy.models")
     config.include("gerrypy.routes")
@@ -50,7 +52,19 @@ def db_session(configuration, request):
     return session
 
 
+@pytest.fixture
+def dummy_request(db_session):
+    return testing.DummyRequest(dbsession=db_session)
+
+
+@pytest.fixture
+def filled_graph(dummy_request):
+    """Import fill_graph as a fixture."""
+    from gerrypy.scripts.fish_scales import fill_graph
+    return fill_graph(dummy_request)
+
 # ------DB Tests--------
+
 
 def test_database_has_tracts(db_session):
     """Test that database has contents."""
@@ -62,22 +76,44 @@ def test_database_has_edges(db_session):
     assert db_session.query(Edge).count() == 15948
 
 
-# def test_database_has_edges(db_session):
-#     """Test that database has contents."""
-#     assert db_session.query(Edge).count() == 15948
-
-#     entry1 = Entry(title='test_title1', body='test_body1', creation_date='test_date1')
-#     entry2 = Entry(title='test_title2', body='test_body2', creation_date='test_date2')
-#     entry3 = Entry(title='test_title3', body='test_body3', creation_date='test_date3')
-#     entry4 = Entry(title='test_title4', body='test_body4', creation_date='test_date4')
-#     for entry in (entry1, entry2, entry3, entry4):
-#         db_session.add(entry)
-#     assert db_session.query(Entry).count() == 4
+def test_edit_districtid(db_session):
+    """Test that editing district works correctly."""
+    sample_row = db_session.query(Tract).first()
+    sample_row.disrictid = 50
+    assert sample_row.disrictid == 50
 
 
-# def test_entry_attributes(db_session):
-#     """Test that new attributes are entered correctly."""
-#     entry1 = Entry(title='test_title1', body='Testing123', creation_date='test_date1')
-#     db_session.add(entry1)
-#     test_row = db_session.query(Entry).first()
-#     assert test_row.body == 'Testing123'
+def test_empty_district_nums(dummy_request, filled_graph):
+    """Test that all districts have no district id before they're filled."""
+    query = dummy_request.dbsession.query(Tract)
+    no_d_id = query.filter(Tract.districtid == None).count()
+    assert no_d_id == 1249
+
+
+def test_assign_district_add_one_dist_id(dummy_request, filled_graph):
+    """Test that a district id is filled by assign_district."""
+    nx.nodes(filled_graph)[0].districtid = 3
+    assign_district(dummy_request, filled_graph)
+    query = dummy_request.dbsession.query(Tract)
+    no_d_id = query.filter(Tract.districtid == None).count()
+    assert no_d_id == 1248
+
+
+def test_assign_district_adds_mult_dist_ids(dummy_request, filled_graph):
+    """Test that multiple district ids are filled by assign_district."""
+    nx.nodes(filled_graph)[0].districtid = 3
+    nx.nodes(filled_graph)[1].districtid = 4
+    assign_district(dummy_request, filled_graph)
+    query = dummy_request.dbsession.query(Tract)
+    no_d_id = query.filter(Tract.districtid == None).count()
+    assert no_d_id == 1247
+
+
+def test_assign_district_correct_dist_assigned(dummy_request, filled_graph):
+    """Test that assign_district adds the correct district to the db."""
+    tractid = nx.nodes(filled_graph)[0].gid
+    nx.nodes(filled_graph)[0].districtid = 3
+    assign_district(dummy_request, filled_graph)
+    query = dummy_request.dbsession.query(Tract)
+    test_tract = query.filter(Tract.gid == tractid).first()
+    assert test_tract.districtid == 3

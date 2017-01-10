@@ -1,6 +1,9 @@
-"""Contains objects to pull tract information from database,
+# -*- coding: utf-8 -*-
+"""
+Contains objects to pull tract information from database,
 compute new congressional districts,
-and store new information in a separate table."""
+and store new information in a separate table.
+"""
 from gerrypy.models.mymodel import Tract, Edge
 import networkx as nx
 

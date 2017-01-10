@@ -38,9 +38,5 @@ class Edge(Base):
     tract_target = Column(Integer)
 
 
-    # def assign_distict(self, id):
-    #     """Assign district to the tract."""
-    #     self.districtid = id
-
 
 Index('district_num', District.district_number, unique=True, mysql_length=255)
