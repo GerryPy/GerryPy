@@ -3,6 +3,7 @@ import transaction
 from pyramid import testing
 from gerrypy.models.mymodel import Tract, District, Edge
 from gerrypy.models.meta import Base
+from gerrypy.graph_db_interact.assigndistrict import assign_district
 # from learning_journal.models.mymodel import Entry
 # from learning_journal.models.meta import Base
 import sys
@@ -19,7 +20,7 @@ def configuration(request):
     This configuration will persist for the entire duration of your PyTest run.
     """
     config = testing.setUp(settings={
-        'sqlalchemy.url': os.environ['SQL_URL']
+        'sqlalchemy.url': os.environ['SQL_URL_TEST']
     })
     config.include("gerrypy.models")
     config.include("gerrypy.routes")
@@ -50,6 +51,18 @@ def db_session(configuration, request):
     return session
 
 
+@pytest.fixture
+def dummy_request(db_session):
+    return testing.DummyRequest(dbsession=db_session)
+
+
+@pytest.fixture
+def filled_graph(dummy_request):
+    """Import fill_graph as a fixture."""
+    from gerrypy.scripts.fish_scales import fill_graph
+    #import pdb; pdb.set_trace()
+    return fill_graph(dummy_request)
+
 # ------DB Tests--------
 
 def test_database_has_tracts(db_session):
@@ -60,6 +73,23 @@ def test_database_has_tracts(db_session):
 def test_database_has_edges(db_session):
     """Test that database has contents."""
     assert db_session.query(Edge).count() == 15948
+
+
+def test_edit_districtid(db_session):
+    """Test that editing district works correctly."""
+    sample_row = db_session.query(Tract).first()
+    sample_row.disrictid = 50
+    assert sample_row.disrictid == 50
+
+
+def test_assign_district(dummy_request, filled_graph):
+    assign_district(db_session, filled_graph)
+
+
+
+
+# def test_tract_table_has_district_column(db_session):
+#     """
 
 
 # def test_database_has_edges(db_session):
