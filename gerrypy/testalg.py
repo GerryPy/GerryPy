@@ -66,6 +66,13 @@ def test_fill_graph_from_db(filled_graph, dummy_request):
     assert len(filled_graph.nodes()) == len(dummy_request.dbsession.query(Tract).all())
 
 
+def test_unoccupied_length_for_colorado(dummy_request):
+    """Test that colorado State object build one unoccupied district."""
+    from gerrypy.scripts.fish_scales import State, TRACTGRAPH
+    State(dummy_request, 7)
+    assert len(State.unoccupied) == 1
+
+
 # Algorithm tests
 
 

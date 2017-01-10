@@ -63,8 +63,10 @@ class District(object):
     def add_node(self, node):
         """Add node to nodes and updates district properties accordingly."""
         self.nodes.append(node)
-        self.population += node.population
-        self.perimeter.remove(node)
+        self.population += node.tract_pop
+        if self.perimeter:
+            import pdb; pdb.set_trace()
+            self.perimeter.remove(node)
         neighbors = TRACTGRAPH.neighbors(node)
         for neighbor in neighbors:
             if neighbor not in self.nodes and neighbor not in self.perimeter:
@@ -72,7 +74,7 @@ class District(object):
 
     def rem_node(self, node):
         """Remove node from nodes and updates district properties accordingly."""
-        self.population -= node.population
+        self.population -= node.tract_pop
         self.perimeter.append(node)
         self.nodes.remove(node)
         neighbors = TRACTGRAPH.neighbors(node)
@@ -102,6 +104,7 @@ class State(object):
 
     def __init__(self, request, num_dst):
         """Build unoccupied district(s) for entire state."""
+        global TRACTGRAPH
         TRACTGRAPH = fill_graph(request)
         landmass = nx.connected_components(TRACTGRAPH)
         for island in landmass:
