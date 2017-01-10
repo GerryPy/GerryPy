@@ -76,6 +76,24 @@ class District(object):
                     self.perimeter.remove(neighbor)
 
 
+# class Unoc(object):
+#     """A structure to contain tracts that haven't been claimed by a district.
+    
+    
+#     """
+
+#     def __init__(self, tracts=None):
+#         """."""
+#         self.nodes = []
+#         self.perimeter = []
+#         self.population = 0
+#         if tracts:
+#             try:
+#                 for tract in tracts:
+#                     self.add_node(tract, TRACTGRAPH)
+#             except TypeError:
+#                 raise TypeError('Tracts must be iterable.')
+
 class State(object):
     """Manages how tracts are distributed into districts in a particular state.
 

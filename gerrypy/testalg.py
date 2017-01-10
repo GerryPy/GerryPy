@@ -20,6 +20,11 @@ def filled_graph(dummy_request):
     return fill_graph(dummy_request)
 
 
+def test_fill_graph_from_db(filled_graph, dummy_request):
+    """Test that fill graph returns a graph with nodes that represent tracts."""
+    assert len(filled_graph.nodes()) == len(dummy_request.dbsession.query(Tract).all())
+
+
 def test_district_constructor():
     """Tests that district constructor creates properties for population, nodes, and perimeters."""
     from gerrypy.scripts.fish_scales import District
@@ -57,11 +62,6 @@ def test_district_rem_node(filled_graph):
         dist.nodes.sort() == filled_graph.nodes().sort() and
         dist.population == node_pop
     )
-
-
-def test_state_fill_graph_from_db(filled_graph, dummy_request):
-    """Test that fill graph returns a graph with nodes that represent tracts."""
-    assert len(filled_graph.nodes()) == len(dummy_request.dbsession.query(Tract).all())
 
 
 def test_state_unoccupied_length_for_colorado(dummy_request):
