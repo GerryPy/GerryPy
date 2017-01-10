@@ -64,8 +64,7 @@ class District(object):
         """Add node to nodes and updates district properties accordingly."""
         self.nodes.append(node)
         self.population += node.tract_pop
-        if self.perimeter:
-            import pdb; pdb.set_trace()
+        if node in self.perimeter:
             self.perimeter.remove(node)
         neighbors = TRACTGRAPH.neighbors(node)
         for neighbor in neighbors:
@@ -116,16 +115,16 @@ class State(object):
         """Create a new district stemming from the start node with a given population."""
         dst = District()
         self.districts.append(dst)
-        while dst.population < population_share:  # ← This is vague criteria
-            # select the most appropriate node for the district to add
+        # while dst.population < population_share:  # ← This is vague criteria
+        #     # select the most appropriate node for the district to add
 
-            # if the node borders a separate district or boundary,
-            # split the unoccupied district that it is in,
-            # and evaluate whether or not node should be added.
+        #     # if the node borders a separate district or boundary,
+        #     # split the unoccupied district that it is in,
+        #     # and evaluate whether or not node should be added.
 
-            # if appropriate, use dst.add_node() to add the most appropriate node in dst.perimeter
-            # else decide the best thing to do             ← This is a BIG step
-            pass
+        #     # if appropriate, use dst.add_node() to add the most appropriate node in dst.perimeter
+        #     # else decide the best thing to do             ← This is a BIG step
+        #     pass
 
     # def fill_state(self):
     #     """Build districts until all unoccupied tracts are claimed."""

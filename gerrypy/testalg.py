@@ -73,6 +73,13 @@ def test_unoccupied_length_for_colorado(dummy_request):
     assert len(State.unoccupied) == 1
 
 
+def test_unoccupied_district_has_all_tracts(dummy_request):
+    from gerrypy.scripts.fish_scales import State, TRACTGRAPH
+    State(dummy_request, 7)
+    assert len(State.unoccupied[0].nodes) == len(dummy_request.dbsession.query(Tract).all())
+
+
+
 # Algorithm tests
 
 
