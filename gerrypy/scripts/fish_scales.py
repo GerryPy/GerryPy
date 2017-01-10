@@ -41,6 +41,8 @@ class OccupiedDist(object):
         self.nodes = nx.Graph()
         self.perimeter = []
         self.population = 0
+        self.area = 0
+        self.districtID = None
         if tracts:
             try:
                 for tract in tracts:
@@ -56,6 +58,7 @@ class OccupiedDist(object):
             if edge in self.nodes.nodes():
                 self.nodes.add_edge(edge, node)
         self.population += node.tract_pop
+        self.area += node.shape_area
         if node in self.perimeter:
             self.perimeter.remove(node)
         neighbors = graph.neighbors(node)
@@ -66,7 +69,12 @@ class OccupiedDist(object):
     def rem_node(self, node, graph):
         """Remove node from nodes and updates district properties accordingly."""
         self.population -= node.tract_pop
+<<<<<<< HEAD
         self.nodes.remove_node(node)
+=======
+        self.area -= node.shape_area
+        self.nodes.remove(node)
+>>>>>>> development
         neighbors = graph.neighbors(node)
         to_perimeter = False
         for neighbor in neighbors:
