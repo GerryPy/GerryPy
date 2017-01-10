@@ -21,3 +21,5 @@ def populate_district_table(request, state):
                             population=district.population,
                             area=district.shape_area)
         request.dbsession.add(district)
+
+

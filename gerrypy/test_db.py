@@ -142,3 +142,5 @@ def test_truncate_district_table(dummy_request):
     dummy_request.dbsession.add(test_row2)
     dummy_request.dbsession.query(District).delete()
     assert dummy_request.dbsession.query(District).count() == 0
+
+test_state = State()
