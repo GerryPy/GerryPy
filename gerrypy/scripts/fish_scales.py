@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Contains objects to pull tract information from database,
 compute new congressional districts,
 and store new information in a separate table."""
