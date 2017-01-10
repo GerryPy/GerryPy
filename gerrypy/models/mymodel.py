@@ -17,7 +17,7 @@ class District(Base):
     __tablename__ = 'districts'
     id = Column(Integer, primary_key=True)
     district_number = Column(Integer)
-    area = Column(Float)
+    shape_area = Column(Float)
     population = Column(Integer)
 
 

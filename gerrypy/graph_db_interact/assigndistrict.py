@@ -1,6 +1,6 @@
 """Use the graph to assign districts to tracts."""
 import networkx as nx
-from gerrypy.models.mymodel import Tract
+from gerrypy.models.mymodel import Tract, District
 
 
 def assign_district(request, graph):
@@ -8,3 +8,16 @@ def assign_district(request, graph):
     for tract in nx.nodes(graph):
         tract_row = request.dbsession.query(Tract).get(tract.gid)
         tract_row.districtid = tract.districtid
+
+
+def populate_district_table(request, state):
+    """Insert distrcts into district."""
+    District.query.delete()
+    for district in state.districts:
+        # districtid =  district.districtid
+        # population = district.population
+        # area = district.shape_area
+        district = District(districtid=district.districtid,
+                            population=district.population,
+                            area=district.shape_area)
+        request.dbsession.add(district)

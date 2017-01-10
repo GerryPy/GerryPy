@@ -41,6 +41,8 @@ class District(object):
         self.nodes = []
         self.perimeter = []
         self.population = 0
+        self.area = 0
+        self.districtID = None
         if tracts:
             try:
                 for tract in tracts:
@@ -52,6 +54,7 @@ class District(object):
         """Add node to nodes and updates district properties accordingly."""
         self.nodes.append(node)
         self.population += node.tract_pop
+        self.area += node.shape_area
         if node in self.perimeter:
             self.perimeter.remove(node)
         neighbors = graph.neighbors(node)
@@ -62,6 +65,7 @@ class District(object):
     def rem_node(self, node, graph):
         """Remove node from nodes and updates district properties accordingly."""
         self.population -= node.tract_pop
+        self.area -= node.shape_area
         self.nodes.remove(node)
         neighbors = graph.neighbors(node)
         to_perimeter = False
