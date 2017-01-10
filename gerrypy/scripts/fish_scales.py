@@ -69,12 +69,8 @@ class OccupiedDist(object):
     def rem_node(self, node, graph):
         """Remove node from nodes and updates district properties accordingly."""
         self.population -= node.tract_pop
-<<<<<<< HEAD
         self.nodes.remove_node(node)
-=======
         self.area -= node.shape_area
-        self.nodes.remove(node)
->>>>>>> development
         neighbors = graph.neighbors(node)
         to_perimeter = False
         for neighbor in neighbors:
