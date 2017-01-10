@@ -1,56 +1,15 @@
 """Test algorithm."""
 
 import pytest
-import os
 from pyramid import testing
-from gerrypy.models.mymodel import Tract, District, Edge
+from gerrypy.models.mymodel import Tract
 from gerrypy.models.meta import Base
 from gerrypy.test_db import db_session, configuration
 
 
-# @pytest.fixture(scope="session")
-# def configuration(request):
-#     """Set up a Configurator instance.
-#     This Configurator instance sets up a pointer to the location of the
-#         database.
-#     It also includes the models from your app's model package.
-#     Finally it tears everything down, including the in-memory SQLite database.
-#     This configuration will persist for the entire duration of your PyTest run.
-#     """
-#     config = testing.setUp(settings={
-#         'sqlalchemy.url': os.environ['SQL_URL']  # user testing database url
-#     })
-#     config.include("gerrypy.models")
-#     config.include("gerrypy.routes")
-
-#     def teardown():
-#         testing.tearDown()
-
-#     request.addfinalizer(teardown)
-#     return config
-
-
-# @pytest.fixture(scope="function")
-# def db_session(configuration, request):
-#     """Create a session for interacting with the test database.
-#     This uses the dbsession_factory on the configurator instance to create a
-#     new database session. It binds that session to the available engine
-#     and returns a new session for every call of the dummy_request object.
-#     """
-#     SessionFactory = configuration.registry["dbsession_factory"]
-#     session = SessionFactory()
-#     engine = session.bind
-#     Base.metadata.create_all(engine)
-
-#     def teardown():
-#         session.transaction.rollback()
-
-#     request.addfinalizer(teardown)
-#     return session
-
-
 @pytest.fixture
 def dummy_request(db_session):
+    """Return dummy request dummy."""
     return testing.DummyRequest(dbsession=db_session)
 
 
@@ -66,14 +25,157 @@ def test_fill_graph_from_db(filled_graph, dummy_request):
     assert len(filled_graph.nodes()) == len(dummy_request.dbsession.query(Tract).all())
 
 
-def test_unoccupied_length_for_colorado(dummy_request):
-    """Test that colorado State object build one unoccupied district."""
+def test_district_constructor():
+    """Tests that district constructor creates properties for population, nodes, and perimeters."""
+    from gerrypy.scripts.fish_scales import District
+    dist = District()
+    assert (
+        dist.nodes == [] and
+        dist.perimeter == [] and
+        dist.population == 0
+    )
+
+
+def test_unoc_constructor():
+    """Tests that unoccupied district constructor creates properties for population, nodes, and perimeters."""
+    from gerrypy.scripts.fish_scales import Unoc
+    unoc = Unoc()
+    assert (
+        unoc.nodes == [] and
+        unoc.perimeter == [] and
+        unoc.population == 0
+    )
+
+
+def test_district_add_node(filled_graph):
+    """Tests that district add_node method properly adds a node to nodes."""
+    from gerrypy.scripts.fish_scales import District
+    dist = District()
+    node_pop = 0
+    for node in filled_graph:
+        dist.add_node(node, filled_graph)
+        node_pop += node.tract_pop
+    assert (
+        dist.nodes.sort() == filled_graph.nodes().sort() and
+        dist.population == node_pop and
+        dist.perimeter == []
+    )
+
+
+def test_unoc_add_node(filled_graph):
+    """Tests that unoccupied district add_node method properly adds a node to nodes."""
+    from gerrypy.scripts.fish_scales import Unoc
+    unoc = Unoc()
+    node_pop = 0
+    filled_graph_perim = []
+    for node in filled_graph:
+        if filled_graph.neighbors(node): # if node borders state
+            filled_graph_perim.append(node)
+    for node in filled_graph:
+        unoc.add_node(node, filled_graph)
+        node_pop += node.tract_pop
+    assert (
+        unoc.nodes.sort() == filled_graph.nodes().sort() and
+        unoc.population == node_pop
+        # unoc.population == node_pop and
+        # unoc.perimeter.sort() == filled_graph_perim.sort()
+    )
+
+
+def test_district_rem_node(filled_graph):
+    """Tests that district rem_node method properly removes a node from nodes."""
+    from gerrypy.scripts.fish_scales import District
+    dist = District()
+    node_pop = 0
+    for node in filled_graph:
+        dist.add_node(node, filled_graph)
+        node_pop += node.tract_pop
+    removed = filled_graph.nodes()[0]
+    node_pop -= removed.tract_pop
+    dist.rem_node(removed, filled_graph)
+    assert (
+        len(dist.nodes) == len(filled_graph.nodes()) - 1 and
+        dist.population == node_pop and
+        dist.perimeter == [removed]
+    )
+
+
+def test_unoc_rem_node(filled_graph):
+    """Tests that unoccupied district rem_node method properly removes a node from nodes."""
+    from gerrypy.scripts.fish_scales import Unoc
+    unoc = Unoc()
+    node_pop = 0
+    filled_graph_perim = []
+    for node in filled_graph:
+        if filled_graph.neighbors(node): # if node borders state
+            filled_graph_perim.append(node)
+    for node in filled_graph:
+        unoc.add_node(node, filled_graph)
+        node_pop += node.tract_pop
+    removed = filled_graph.nodes()[0]
+    node_pop -= removed.tract_pop
+    unoc.rem_node(removed, filled_graph)
+    assert (
+        len(unoc.nodes) == len(filled_graph.nodes()) - 1 and
+        unoc.population == node_pop
+        # unoc.population == node_pop and
+        # unoc.perimeter.sort() == filled_graph_perim.sort()
+    )
+
+
+def test_district_rem_nodes(filled_graph):
+    """Tests that district rem_node method properly removes a node from nodes."""
+    from gerrypy.scripts.fish_scales import District
+    dist = District()
+    node_pop = 0
+    for node in filled_graph:
+        dist.add_node(node, filled_graph)
+        node_pop += node.tract_pop
+    for ind in range(len(filled_graph) - 1):
+        removed = filled_graph.nodes()[len(filled_graph) - ind - 1]
+        node_pop -= removed.tract_pop
+        dist.rem_node(removed, filled_graph)
+    assert (
+        dist.nodes == [list(filled_graph)[0]] and
+        dist.population == node_pop and
+        dist.perimeter.sort() == [filled_graph.neighbors(list(filled_graph)[0])].sort()
+    )
+
+
+def test_unoc_rem_nodes(filled_graph):
+    """Tests that unoccupied district rem_node method properly removes a node from nodes."""
+    from gerrypy.scripts.fish_scales import Unoc
+    unoc = Unoc()
+    node_pop = 0
+    filled_graph_perim = []
+    for node in filled_graph:
+        if filled_graph.neighbors(node): # if node borders state
+            filled_graph_perim.append(node)
+    for node in filled_graph:
+        unoc.add_node(node, filled_graph)
+        node_pop += node.tract_pop
+    for ind in range(len(filled_graph) - 1):
+        removed = filled_graph.nodes()[len(filled_graph) - ind - 1]
+        node_pop -= removed.tract_pop
+        unoc.rem_node(removed, filled_graph)
+    assert (
+        unoc.nodes == [list(filled_graph)[0]] and
+        unoc.population == node_pop
+        # unoc.population == node_pop and
+        # unoc.perimeter.sort() == filled_graph_perim.sort()
+    )
+
+
+def test_state_unoccupied_length_for_colorado(dummy_request):
+    """Test that colorado State object builds one unoccupied district."""
     from gerrypy.scripts.fish_scales import State, TRACTGRAPH
     state = State(dummy_request, 7)
     assert len(state.unoccupied) == 1
 
 
-def test_unoccupied_district_has_all_tracts(dummy_request):
+def test_state_unoccupied_district_has_all_tracts(dummy_request):
+    """Test that the number of tracts in unoccupied district
+    matches the number of rows in the database."""
     from gerrypy.scripts.fish_scales import State, TRACTGRAPH
     state = State(dummy_request, 7)
     nodes = state.unoccupied[0].nodes
@@ -81,124 +183,28 @@ def test_unoccupied_district_has_all_tracts(dummy_request):
     assert len(nodes) == len(queries)
 
 
-
-# Algorithm tests
-
-
-# NODES = [
-#     [123456, None],
-#     [200000, []],
-#     [200000, ["data"]],
-# ]
+def test_state_unoccupied_district_has_no_perimeter(dummy_request):
+    """Test that the perimeter of the unoccupied district is empty."""
+    from gerrypy.scripts.fish_scales import State, TRACTGRAPH
+    state = State(dummy_request, 7)
+    assert state.unoccupied[0].perimeter == []
 
 
-# NEIGHBORS = [
-#     [],
-#     [NODES[0]],
-#     [NODES[0], NODES[1]]
-# ]
+def test_state_population(dummy_request):
+    """Test that the population of the state is equal
+    to the sum of the tracts population in the database."""
+    from gerrypy.scripts.fish_scales import State, TRACTGRAPH
+    from sqlalchemy import func
+    state = State(dummy_request, 7)
+    pop = dummy_request.dbsession.query(func.sum(Tract.tract_pop)).scalar()
+    assert state.population == pop
 
 
-# BAD_POP = [
-#     [0, [], []],
-#     [-123456, [], []],
-# ]
-
-
-# BAD_NEIGH = [
-#     [100000, None, ["data"]],
-#     [100000, [1, 2, 3], ["data"]],
-#     [100000, ["four", "five", "six"], ["data"]],
-# ]
-
-
-# NODE_LST = [
-#     [[], [], 0],
-#     [[Node(1, ["data"])], [], 1],
-#     [[Node(1, ["data"]), Node(10, ["more data"])], [], 11],
-#     [[Node(1, ["data"]), Node(10, None)], [NEIGHBORS[0]], 11],
-#     [[NEIGHBORS[0], NODES[2]], [NEIGHBORS[1]], 200001],
-#     [[Node(1, ["data"]), NODES[2]], [NEIGHBORS[0], NEIGHBORS[1]], 2]
-# ]
-
-
-# BAD_NODES = [None, object, "string", 42, [], {}, [Node(1, None)]]
-
-
-# @pytest.fixture
-# def sample_state():
-#     """Creates a list of nodes that are connected by borders like tracts in a state."""
-#     nodes = [
-#         Node(100, ["node 1"]),
-#         Node(100, ["node 2"]),
-#         Node(100, ["node 3"]),
-#         Node(100, ["node 4"]),
-#         Node(100, ["node 5"])
-#     ]
-#     nodes[0].add_neighbors([nodes[1], nodes[2], nodes[3], nodes[4]])
-#     nodes[1].add_neighbors([nodes[4], nodes[2]])
-#     nodes[2].add_neighbors([nodes[1], nodes[3]])
-#     nodes[3].add_neighbors([nodes[2], nodes[4]])
-#     nodes[4].add_neighbors([nodes[3], nodes[1]])
-#     return nodes
-
-
-# @pytest.mark.parametrize("pop, data", NODES)
-# def test_node_constructor(pop, data):
-#     """Tests that node constructor can contain population as a property."""
-#     node = Node(pop, data)
-#     assert (
-#         node.population == pop and
-#         node.data == data
-#     )
-
-
-# @pytest.mark.parametrize("pop, data", BAD_POP)
-# def test_node_population_error(pop, data):
-#     """Tests that node constructor raises an error when given a negative population."""
-#     with pytest.raises(ValueError):
-#         Node(pop, data)
-
-
-# @pytest.mark.parametrize("pop, neigh, data", NEIGHBORS)
-# def test_node_neighbors(pop, neigh, data):
-#     """Tests that add_neighbors method of Node object adds a list of neighboring nodes to self."""
-#     node = Node(pop, data)
-#     node.add_neighbors(neigh)
-#     assert node.neighbors == neigh
-
-
-# @pytest.mark.parametrize("pop, neigh, data", BAD_NEIGH)
-# def test_node_neighbors_error(pop, neigh, data):
-#     """Tests that node constructor raises an error when given neighbors that are not node."""
-#     node = Node(pop, data)
-#     with pytest.raises(ValueError):
-#         node.add_neighbors(neigh)
-
-
-# def test_district_constructor():
-#     """Tests that district constructor creates properties for population, nodes, and perimeters."""
-#     from gerrypy.scripts.fish_scales import District
-#     dist = District()
-#     assert (
-#         dist.nodes == [] and
-#         dist.perimeter == [] and
-#         dist.population == 0
-#     )
-
-
-# @pytest.mark.parametrize("node_lst, peri_lst, pop", NODE_LST)
-# def test_district_add_node(node_lst, peri_lst, pop):
-#     """Tests that district add_node method properly adds a node to nodes."""
-#     from gerrypy.scripts.fish_scales import District
-#     dist = District()
-#     for node in node_lst:
-#         dist.add_node(node)
-#     assert (
-#         dist.nodes == node_lst and
-#         dist.perimeter == peri_lst and
-#         dist.population == pop
-#     )
+def test_state_districts(dummy_request):
+    """Test that districts property of an instance of State() is initialized to an empty list."""
+    from gerrypy.scripts.fish_scales import State, TRACTGRAPH
+    state = State(dummy_request, 7)
+    assert state.districts == []
 
 
 # @pytest.mark.parametrize("bad_node", BAD_NODES)

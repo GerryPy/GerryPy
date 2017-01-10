@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Contains objects to pull tract information from database,
+"""
+Contains objects to pull tract information from database,
 compute new congressional districts,
-and store new information in a separate table."""
+and store new information in a separate table.
+"""
 from gerrypy.models.mymodel import Tract, Edge
 import networkx as nx
 
@@ -24,20 +26,6 @@ def fill_graph(request):
     return graph
 
 
-# class Node(object):
-#     """Container for information about a given tract to populate District object."""
-
-#     def __init__(self, population, data):
-#         """Duh."""
-#         self.population = population
-#         self.data = data
-#         self.neighbors = []
-
-#     def add_neighbors(self, neighbors):
-#         """Add a list of nodes adjacent to self."""
-#         self.neighbors.extend(neighbors)
-
-
 class District(object):
     """A stucture to contain and separate tracts in a State object.
 
@@ -53,39 +41,87 @@ class District(object):
         self.nodes = []
         self.perimeter = []
         self.population = 0
+        self.area = 0
+        self.districtID = None
         if tracts:
             try:
                 for tract in tracts:
-                    self.add_node(tract)
+                    self.add_node(tract, TRACTGRAPH)
             except TypeError:
                 raise TypeError('Tracts must be iterable.')
 
-    def add_node(self, node):
+    def add_node(self, node, graph):
         """Add node to nodes and updates district properties accordingly."""
         self.nodes.append(node)
         self.population += node.tract_pop
+        self.area += node.shape_area
         if node in self.perimeter:
             self.perimeter.remove(node)
-        neighbors = TRACTGRAPH.neighbors(node)
+        neighbors = graph.neighbors(node)
         for neighbor in neighbors:
             if neighbor not in self.nodes and neighbor not in self.perimeter:
                 self.perimeter.append(neighbor)
 
-    def rem_node(self, node):
+    def rem_node(self, node, graph):
         """Remove node from nodes and updates district properties accordingly."""
         self.population -= node.tract_pop
-        self.perimeter.append(node)
+        self.area -= node.shape_area
         self.nodes.remove(node)
-        neighbors = TRACTGRAPH.neighbors(node)
+        neighbors = graph.neighbors(node)
+        to_perimeter = False
         for neighbor in neighbors:
             takeout = True
             if neighbor in self.perimeter:
-                neighborneighbors = TRACTGRAPH.neighbors(neighbor)
+                neighborneighbors = graph.neighbors(neighbor)
                 for neighborneighbor in neighborneighbors:
                     if neighborneighbor in self.nodes:
                         takeout = False
-            if takeout:
-                self.perimeter.remove(neighbor)
+                if takeout:
+                    self.perimeter.remove(neighbor)
+            elif neighbor in self.nodes:
+                to_perimeter = True
+        if to_perimeter:
+            self.perimeter.append(node)
+        # if len(self.nodes) == 1:
+        #     import pdb; pdb.set_trace()
+
+
+class Unoc(District):
+    """A structure to contain tracts that haven't been claimed by a district.
+
+    add_node(self, node): adds node to nodes and updates district
+    properties accordingly
+
+    rem_node(self, node): removes node from nodes and updates district
+    properties accordingly
+    """
+
+    def add_node(self, node, graph):
+        """Add node to nodes and updates district properties accordingly."""
+        self.nodes.append(node)
+        self.population += node.tract_pop
+        self.perimeter.append(node)
+        neighbors = graph.neighbors(node)
+        for neighbor in neighbors:
+            takeout = True
+            if neighbor in self.perimeter:
+                neighborneighbors = graph.neighbors(neighbor)
+                for neighborneighbor in neighborneighbors:
+                    if neighborneighbor not in self.nodes:
+                        takeout = False
+                if takeout:
+                    self.perimeter.remove(neighbor)
+
+    def rem_node(self, node, graph):
+        """Remove node from nodes and updates district properties accordingly."""
+        self.nodes.remove(node)
+        self.population -= node.tract_pop
+        if node in self.perimeter:
+            self.perimeter.remove(node)
+        neighbors = graph.neighbors(node)
+        for neighbor in neighbors:
+            if neighbor not in self.nodes and neighbor not in self.perimeter:
+                self.perimeter.append(neighbor)
 
 
 class State(object):
@@ -107,7 +143,9 @@ class State(object):
         TRACTGRAPH = fill_graph(request)
         landmass = nx.connected_components(TRACTGRAPH)
         for island in landmass:
-            self.unoccupied.append(District(island))
+            dist = District(island)
+            self.population += dist.population
+            self.unoccupied.append(dist)
 
         # construct target districts
 
