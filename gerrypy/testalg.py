@@ -138,7 +138,7 @@ def test_district_rem_nodes(filled_graph):
     assert (
         dist.nodes == [list(filled_graph)[0]] and
         dist.population == node_pop and
-        dist.perimeter == filled_graph.neighbors(list(filled_graph)[0])
+        dist.perimeter.sort() == [filled_graph.neighbors(list(filled_graph)[0])].sort()
     )
 
 

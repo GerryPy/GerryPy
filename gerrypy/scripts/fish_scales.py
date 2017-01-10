@@ -62,9 +62,9 @@ class District(object):
     def rem_node(self, node, graph):
         """Remove node from nodes and updates district properties accordingly."""
         self.population -= node.tract_pop
-        self.perimeter.append(node)
         self.nodes.remove(node)
         neighbors = graph.neighbors(node)
+        to_perimeter = False
         for neighbor in neighbors:
             takeout = True
             if neighbor in self.perimeter:
@@ -74,8 +74,12 @@ class District(object):
                         takeout = False
                 if takeout:
                     self.perimeter.remove(neighbor)
-        if len(self.nodes) == 1:
-            import pdb; pdb.set_trace()
+            elif neighbor in self.nodes:
+                to_perimeter = True
+        if to_perimeter:
+            self.perimeter.append(node)
+        # if len(self.nodes) == 1:
+        #     import pdb; pdb.set_trace()
 
 
 class Unoc(District):
