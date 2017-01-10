@@ -36,13 +36,13 @@ class OccupiedDist(object):
     properties accordingly
     """
 
-    def __init__(self, tracts=None):
+    def __init__(self, tracts=None, districtID=None):
         """."""
         self.nodes = nx.Graph()
         self.perimeter = []
         self.population = 0
         self.area = 0
-        self.districtID = None
+        self.districtID = districtID
         if tracts:
             try:
                 for tract in tracts:
