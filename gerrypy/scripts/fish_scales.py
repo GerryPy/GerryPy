@@ -54,8 +54,7 @@ class OccupiedDist(object):
         """Add node to nodes and updates district properties accordingly."""
         node.districtid = self.districtID
         self.nodes.add_node(node)
-        edge_lst = graph.neighbors(node)
-        for edge in edge_lst:
+        for edge in graph.neighbors(node):
             if edge in self.nodes.nodes():
                 self.nodes.add_edge(edge, node)
         self.population += node.tract_pop
@@ -117,6 +116,9 @@ class UnoccupiedDist(OccupiedDist):
         """Add node to nodes and updates district properties accordingly."""
         node.districtid = None
         self.nodes.add_node(node)
+        for neighbor in graph.neighbors(node):
+            if neighbor in self.nodes:
+                self.nodes.add_edge(neighbor, node)
         self.population += node.tract_pop
         self.area += node.shape_area
         neighbors = graph.neighbors(node)
@@ -198,16 +200,16 @@ class State(object):
         start = self.find_start(graph)
         self.swap(dst, start, graph)
         while building:
-            new_tract = self.select_next(start, dst)
+            new_tract = self.select_next(dst, graph)
             if new_tract is None:
                 break
-            high_pop = (new_tract.population + dst.population)
+            high_pop = (new_tract.tract_pop + dst.population)
             if abs(high_pop - tgt_population) > abs(dst.population - tgt_population):
                 break
             else:
                 unoc_dst = self.swap(dst, new_tract, graph)
                 neighbors = graph.neighbors(new_tract)
-                unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in unoc_dst]
+                unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in unoc_dst.nodes]
                 if len(unassigned_neighbors) > 1:
                     for i in range(len(unassigned_neighbors)):
                         if not nx.has_path(
@@ -215,14 +217,13 @@ class State(object):
                             unassigned_neighbors[i],
                             unassigned_neighbors[i - 1]
                         ):
-                            unoc_dst.rem_node(new_tract, graph)
-                            dst.add_node(new_tract, graph)
+                            dst.rem_node(new_tract, graph)
+                            unoc_dst.add_node(new_tract, graph)
                             building = False
 
     def swap(self, dst, new_tract, graph):
         """Exchange tract from unoccupied district to district."""
         unoc_dst = None
-        import pdb; pdb.set_trace()
         for island in self.unoccupied:
             if new_tract in island.perimeter:
                 unoc_dst = island
@@ -230,13 +231,13 @@ class State(object):
         dst.add_node(new_tract, graph)
         return unoc_dst
 
-    def select_next(self, dst, start=None, graph=TRACTGRAPH):
+    def select_next(self, dst, graph=TRACTGRAPH):
         """Choose the next best tract to add to growing district."""
-        if start:
-            return start
         best_count = 0
         best = None
         for perimeter_tract in dst.perimeter:
+            if perimeter_tract in dst.nodes:
+                import pdb; pdb.set_trace()
             if perimeter_tract.districtid is None:
                 count = 0
                 for neighbor in graph.neighbors(perimeter_tract):

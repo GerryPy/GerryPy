@@ -313,7 +313,7 @@ def test_state_build_district_population(fill_colorado):
 
 def test_state_build_district_area(fill_colorado):
     """Test that district area == state area when there is one district in the state."""
-    assert fill_colorado.area == fill_colorado.districts[0].area
+    assert fill_colorado.area == fill_colorado.districts[0].area + fill_colorado.unoccupied[0].area
 
 
 def test_state_build_district_perimiter(fill_colorado):
