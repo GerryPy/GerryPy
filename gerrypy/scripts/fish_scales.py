@@ -153,7 +153,7 @@ class State(object):
         TRACTGRAPH = fill_graph(request)
         landmass = nx.connected_components(TRACTGRAPH)
         for island in landmass:
-            dist = OccupiedDist(island)
+            dist = UnoccupiedDist(None, island)
             self.population += dist.population
             self.unoccupied.append(dist)
             self.area += dist.area
@@ -167,7 +167,7 @@ class State(object):
         dst = OccupiedDist(dist_num)
         self.districts.append(dst)
         while building:
-            new_tract = State.select_next(dst)
+            new_tract = self.select_next(dst)
             if new_tract is None:
                 break
             high_pop = (new_tract.population + dst.population)
@@ -254,7 +254,7 @@ class State(object):
         new_iters = nx.connected_components(dist.nodes)
         new_dists = []
         for itr in new_iters:
-            new_dists.append(UnoccupiedDist(itr))
+            new_dists.append(UnoccupiedDist(None, itr))
         self.unoccupied.extend(new_dists)
 
        # dont_add = set()
