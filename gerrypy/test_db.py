@@ -177,3 +177,4 @@ def test_populate_district_table_nonunique_id(dummy_request, sample_state):
     populate_district_table(dummy_request, sample_state)
     query = dummy_request.dbsession.query(District).get(2)
     assert query.area == 250420
+

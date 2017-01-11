@@ -9,6 +9,7 @@ from sqlalchemy import (
 )
 
 from .meta import Base
+from geoalchemy2 import Geometry
 
 
 class District(Base):
@@ -19,6 +20,7 @@ class District(Base):
     district_number = Column(Integer)
     area = Column(Float)
     population = Column(Integer)
+    geom = Column(Geometry('MultiPolygon'))
 
 
 class Tract(Base):
@@ -28,6 +30,7 @@ class Tract(Base):
     districtid = Column(Integer)
     shape_area = Column(Numeric)
     tract_pop = Column(Integer)
+    geom = Column(Geometry('MultiPolygon'))
 
 
 class Edge(Base):
