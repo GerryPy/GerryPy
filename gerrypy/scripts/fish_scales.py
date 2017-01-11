@@ -159,13 +159,13 @@ class State(object):
 
         # construct target districts
 
-    def build_district(self, start, population, graph=TRACTGRAPH):
+    def build_district(self, start, tgt_population, graph=TRACTGRAPH):
         """Create a new district stemming from the start node with a given population."""
         dst = OccupiedDist()
         self.districts.append(dst)
         while True:
             new_tract = State.select_next(dst)
-            if abs((new_tract.population + dst.population) - population) > abs(dst.population - population):
+            if abs((new_tract.population + dst.population) - tgt_population) > abs(dst.population - tgt_population):
                 break
             else:
                 unoc_dst = None
@@ -177,10 +177,9 @@ class State(object):
                 neighbors = graph.neighbors(new_tract)
                 unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in unoc_dst]
                 if len(unassigned_neighbors) > 1:
-                    # unoc1 = UnoccupiedDist(nx.node_connected_component(graph, unassigned_neighbors[0]))
                     for i in range(len(unassigned_neighbors)):
                         if not nx.has_path(unoc_dst.nodes, unassigned_neighbors[i], unassigned_neighbors[i - 1]):
-                            self.split_graph(unoc)
+                            self.split_unoccupied_dist(unoc)
                             
 
 
@@ -255,5 +254,5 @@ class State(object):
         new_graphs = nx.connected_components(dist.nodes)
         new_dists = []
         for graph in new_graphs:
-            new_dists.append(UnoccupiedDist(list(graph)))
+            new_dists.append(UnoccupiedDist(graph))
         self.unoccupied.extend(new_dists)

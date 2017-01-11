@@ -237,10 +237,10 @@ def test_state_build_district_area(dummy_request, filled_graph):
     from gerrypy.scripts.fish_scales import State
     colorado = State(dummy, 1)
     colorado.build_district(list(filled_graph)[0], colorado.population)
-    assert colorado.area = colorado.districts[0].area
+    assert colorado.area == colorado.districts[0].area
 
 
-def test_state build_district_perimiter(dummy_request, filled_graph):
+def test_state_build_district_perimiter(dummy_request, filled_graph):
     """Test that district perimiter == state perimiter when there is one district in the state."""
     from gerrypy.scripts.fish_scales import State
     colorado = State(dummy, 1)
