@@ -8,6 +8,7 @@ from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_d
 import sys
 import os
 import networkx as nx
+from geoalchemy2 import Geometry
 
 
 @pytest.fixture(scope="session")

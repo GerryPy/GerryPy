@@ -8,8 +8,8 @@ from sqlalchemy import (
     Numeric
 )
 
-from .meta import Base
 from geoalchemy2 import Geometry
+from .meta import Base
 
 
 class District(Base):
