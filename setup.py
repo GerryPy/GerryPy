@@ -13,7 +13,8 @@ requires = [
     'waitress',
     'psycopg2',
     'jupyter',
-    'networkx'
+    'networkx',
+    'geoalchemy2'
 ]
 
 tests_require = [

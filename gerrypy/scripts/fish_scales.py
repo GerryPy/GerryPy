@@ -157,6 +157,7 @@ class State(object):
     fill_state(self): continues to build districts until all unoccupied tracts are claimed
     """
 
+
     def __init__(self, request, num_dst):
         """Build unoccupied district(s) for entire state."""
         self.unoccupied = []

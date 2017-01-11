@@ -1,6 +1,9 @@
 """Use the graph to assign districts to tracts."""
 import networkx as nx
 from gerrypy.models.mymodel import Tract, District
+from sqlalchemy import func
+from sqlalchemy.sql import label
+from geoalchemy2.functions import ST_Union
 
 
 def assign_district(request, graph):
@@ -13,13 +16,18 @@ def assign_district(request, graph):
 def populate_district_table(request, state):
     """Insert distrcts into district."""
     request.dbsession.query(District).delete()
+    # geoms = request.dbsession.query(Tract.districtid,
+    #                                 ST_Union(Tract.geom).label('geom').group_by(Tract.district))
     for district in state.districts:
-        # districtid =  district.districtid
-        # population = district.population
-        # area = district.shape_area
-        district = District(id=district.districtid,
-                            population=district.population,
-                            area=district.shape_area)
-        request.dbsession.add(district)
-
-
+        geom = request.dbsession.query(
+            Tract.districtid,
+            ST_Union(Tract.districtid).label('districtid')
+            ).filter(Tract.districtid == district.districtID
+            ).group_by(Tract.districtid
+            ).all()
+        import pdb; pdb.set_trace()
+        new_district = District(id=district.districtID,
+                                population=district.population,
+                                area=district.area,
+                                geom=geom)
+        request.dbsession.add(new_district)
