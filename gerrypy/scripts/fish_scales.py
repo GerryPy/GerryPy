@@ -190,6 +190,9 @@ class State(object):
             rem_dist = self.num_dst - len(self.districts)
             tgt_population = rem_pop / rem_dist
             self.build_district(tgt_population, num + 1, self.graph)
+        if self.unoccupied:
+            return False
+        return True
 
 
     def build_district(self, tgt_population, dist_num, graph=TRACTGRAPH):
@@ -202,6 +205,9 @@ class State(object):
         while building:
             new_tract = self.select_next(dst, graph)
             if new_tract is None:
+                for unoc in self.unoccupied:
+                    if not len(unoc):
+                        self.unoccupied.remove(unoc)
                 break
             high_pop = (new_tract.tract_pop + dst.population)
             if abs(high_pop - tgt_population) > abs(dst.population - tgt_population):
