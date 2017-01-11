@@ -242,8 +242,6 @@ class State(object):
         best_count = 0
         best = None
         for perimeter_tract in dst.perimeter:
-            if perimeter_tract in dst.nodes:
-                import pdb; pdb.set_trace()
             if perimeter_tract.districtid is None:
                 count = 0
                 for neighbor in graph.neighbors(perimeter_tract):
