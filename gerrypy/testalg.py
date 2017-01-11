@@ -20,6 +20,15 @@ def filled_graph(dummy_request):
     return fill_graph(dummy_request)
 
 
+@pytest.fixture
+def fill_colorado(dummy_request, filled_graph):
+    """Build a state with a single district."""
+    from gerrypy.scripts.fish_scales import State
+    colorado = State(dummy_request, 1)
+    colorado.build_district(colorado.find_start(filled_graph), colorado.population, 1)
+    return colorado
+
+
 def test_fill_graph_from_db(filled_graph, dummy_request):
     """Test that fill graph returns a graph with nodes that represent tracts."""
     assert len(filled_graph.nodes()) == len(dummy_request.dbsession.query(Tract).all())
@@ -28,7 +37,7 @@ def test_fill_graph_from_db(filled_graph, dummy_request):
 def test_district_constructor():
     """Test that district constructor creates properties for population, nodes, and perimeters."""
     from gerrypy.scripts.fish_scales import OccupiedDist
-    dist = OccupiedDist()
+    dist = OccupiedDist(1)
     assert (
         dist.nodes.nodes() == [] and
         dist.perimeter == [] and
@@ -36,36 +45,64 @@ def test_district_constructor():
     )
 
 
-def test_unoc_constructor():
+def test_unoc_constructor_nodes():
     """Test that unoccupied district constructor creates properties for population, nodes, and perimeters."""
     from gerrypy.scripts.fish_scales import UnoccupiedDist
-    unoc = UnoccupiedDist()
-    assert (
-        unoc.nodes.nodes() == [] and
-        unoc.perimeter == [] and
-        unoc.population == 0
-    )
+    unoc = UnoccupiedDist(None)
+    assert unoc.nodes.nodes() == []
+
+
+def test_unoc_constructor_perimeter():
+    """Test that unoccupied district constructor creates properties for population, nodes, and perimeters."""
+    from gerrypy.scripts.fish_scales import UnoccupiedDist
+    unoc = UnoccupiedDist(None)
+    assert unoc.perimeter == []
+
+
+def test_unoc_constructor_population():
+    """Test that unoccupied district constructor creates properties for population, nodes, and perimeters."""
+    from gerrypy.scripts.fish_scales import UnoccupiedDist
+    unoc = UnoccupiedDist(None)
+    assert unoc.population == 0
 
 
 def test_district_add_node(filled_graph):
     """Test that district add_node method properly adds a node to nodes."""
     from gerrypy.scripts.fish_scales import OccupiedDist
-    dist = OccupiedDist()
+    dist = OccupiedDist(1)
     node_pop = 0
     for node in filled_graph:
         dist.add_node(node, filled_graph)
         node_pop += node.tract_pop
-    assert (
-        dist.nodes.nodes().sort() == filled_graph.nodes().sort() and
-        dist.population == node_pop and
-        dist.perimeter == []
-    )
+    assert dist.nodes.nodes().sort() == filled_graph.nodes().sort()
+
+
+def test_district_add_node_population(filled_graph):
+    """Test that district add_node method properly adds a node to nodes."""
+    from gerrypy.scripts.fish_scales import OccupiedDist
+    dist = OccupiedDist(1)
+    node_pop = 0
+    for node in filled_graph:
+        dist.add_node(node, filled_graph)
+        node_pop += node.tract_pop
+    assert dist.population == node_pop
+
+
+def test_district_add_node_perimeter(filled_graph):
+    """Test that district add_node method properly adds a node to nodes."""
+    from gerrypy.scripts.fish_scales import OccupiedDist
+    dist = OccupiedDist(1)
+    node_pop = 0
+    for node in filled_graph:
+        dist.add_node(node, filled_graph)
+        node_pop += node.tract_pop
+    assert dist.perimeter == []
 
 
 def test_unoc_add_node(filled_graph):
     """Test that unoccupied district add_node method properly adds a node to nodes."""
     from gerrypy.scripts.fish_scales import UnoccupiedDist
-    unoc = UnoccupiedDist()
+    unoc = UnoccupiedDist(None)
     node_pop = 0
     filled_graph_perim = []
     for node in filled_graph:
@@ -86,7 +123,7 @@ def test_unoc_add_node(filled_graph):
 def test_district_rem_node(filled_graph):
     """Test that district rem_node method properly removes a node from nodes."""
     from gerrypy.scripts.fish_scales import OccupiedDist
-    dist = OccupiedDist()
+    dist = OccupiedDist(1)
     node_pop = 0
     for node in filled_graph:
         dist.add_node(node, filled_graph)
@@ -94,17 +131,41 @@ def test_district_rem_node(filled_graph):
     removed = filled_graph.nodes()[0]
     node_pop -= removed.tract_pop
     dist.rem_node(removed, filled_graph)
-    assert (
-        len(dist.nodes.nodes()) == len(filled_graph.nodes()) - 1 and
-        dist.population == node_pop and
-        dist.perimeter == [removed]
-    )
+    assert len(dist.nodes.nodes()) == len(filled_graph.nodes()) - 1
+
+
+def test_district_rem_node_population(filled_graph):
+    """Test that district rem_node method properly removes a node from nodes."""
+    from gerrypy.scripts.fish_scales import OccupiedDist
+    dist = OccupiedDist(1)
+    node_pop = 0
+    for node in filled_graph:
+        dist.add_node(node, filled_graph)
+        node_pop += node.tract_pop
+    removed = filled_graph.nodes()[0]
+    node_pop -= removed.tract_pop
+    dist.rem_node(removed, filled_graph)
+    assert dist.population == node_pop
+
+
+def test_district_rem_node_perimeter(filled_graph):
+    """Test that district rem_node method properly removes a node from nodes."""
+    from gerrypy.scripts.fish_scales import OccupiedDist
+    dist = OccupiedDist(1)
+    node_pop = 0
+    for node in filled_graph:
+        dist.add_node(node, filled_graph)
+        node_pop += node.tract_pop
+    removed = filled_graph.nodes()[0]
+    node_pop -= removed.tract_pop
+    dist.rem_node(removed, filled_graph)
+    assert dist.perimeter == [removed]
 
 
 def test_unoc_rem_node(filled_graph):
     """Test that unoccupied district rem_node method properly removes a node from nodes."""
     from gerrypy.scripts.fish_scales import UnoccupiedDist
-    unoc = UnoccupiedDist()
+    unoc = UnoccupiedDist(None)
     node_pop = 0
     filled_graph_perim = []
     for node in filled_graph:
@@ -127,7 +188,7 @@ def test_unoc_rem_node(filled_graph):
 def test_district_rem_nodes(filled_graph):
     """Test that district rem_node method properly removes a node from nodes."""
     from gerrypy.scripts.fish_scales import OccupiedDist
-    dist = OccupiedDist()
+    dist = OccupiedDist(1)
     node_pop = 0
     for node in filled_graph:
         dist.add_node(node, filled_graph)
@@ -136,17 +197,43 @@ def test_district_rem_nodes(filled_graph):
         removed = filled_graph.nodes()[len(filled_graph) - ind - 1]
         node_pop -= removed.tract_pop
         dist.rem_node(removed, filled_graph)
-    assert (
-        dist.nodes.nodes() == [list(filled_graph)[0]] and
-        dist.population == node_pop and
-        dist.perimeter.sort() == [filled_graph.neighbors(list(filled_graph)[0])].sort()
-    )
+    assert dist.nodes.nodes() == [list(filled_graph)[0]]
+
+
+def test_district_rem_nodes_population(filled_graph):
+    """Test that district rem_node method properly removes a node from nodes."""
+    from gerrypy.scripts.fish_scales import OccupiedDist
+    dist = OccupiedDist(1)
+    node_pop = 0
+    for node in filled_graph:
+        dist.add_node(node, filled_graph)
+        node_pop += node.tract_pop
+    for ind in range(len(filled_graph) - 1):
+        removed = filled_graph.nodes()[len(filled_graph) - ind - 1]
+        node_pop -= removed.tract_pop
+        dist.rem_node(removed, filled_graph)
+    assert dist.population == node_pop
+
+
+def test_district_rem_nodes_perimeter(filled_graph):
+    """Test that district rem_node method properly removes a node from nodes."""
+    from gerrypy.scripts.fish_scales import OccupiedDist
+    dist = OccupiedDist(1)
+    node_pop = 0
+    for node in filled_graph:
+        dist.add_node(node, filled_graph)
+        node_pop += node.tract_pop
+    for ind in range(len(filled_graph) - 1):
+        removed = filled_graph.nodes()[len(filled_graph) - ind - 1]
+        node_pop -= removed.tract_pop
+        dist.rem_node(removed, filled_graph)
+    assert dist.perimeter.sort() == [filled_graph.neighbors(list(filled_graph)[0])].sort()
 
 
 def test_unoc_rem_nodes(filled_graph):
     """Test that unoccupied district rem_node method properly removes a node from nodes."""
     from gerrypy.scripts.fish_scales import UnoccupiedDist
-    unoc = UnoccupiedDist()
+    unoc = UnoccupiedDist(None)
     node_pop = 0
     filled_graph_perim = []
     for node in filled_graph:
@@ -208,44 +295,34 @@ def test_state_districts(dummy_request):
     assert state.districts == []
 
 
-def test_state_build_district(dummy_request, filled_graph):
+def test_state_build_district(fill_colorado):
     """Test that tracts are added to districts."""
-    from gerrypy.scripts.fish_scales import State
-    colorado = State(dummy_request, 1)
-    colorado.build_district(list(filled_graph)[0], colorado.population)
-    assert colorado.districts
+    assert fill_colorado.districts
 
 
-def test_state_build_district_unoccupied(dummy_request, filled_graph):
+def test_state_build_district_unoccupied(fill_colorado):
     """Test that filling the whole state with one district leaves no unoccupied tracts."""
-    from gerrypy.scripts.fish_scales import State
-    colorado = State(dummy_request, 1)
-    colorado.build_district(list(filled_graph)[0], colorado.population)
-    assert colorado.unoccupied == []
+    assert len(fill_colorado.districts[0].nodes.nodes()) > 0
 
 
-def test_state_build_district_population(dummy_request, filled_graph):
+def test_state_build_district_population(fill_colorado):
     """Test that district pop == state pop when there is one district in the state."""
-    from gerrypy.scripts.fish_scales import State
-    colorado = State(dummy, 1)
-    colorado.build_district(list(filled_graph)[0], colorado.population)
-    assert colorado.population == colorado.districts[0].population
+    total_pop = fill_colorado.districts[0].population +  fill_colorado.unoccupied[0].population
+    assert fill_colorado.population == total_pop
 
 
-def test_state_build_district_area(dummy_request, filled_graph):
+def test_state_build_district_area(fill_colorado):
     """Test that district area == state area when there is one district in the state."""
-    from gerrypy.scripts.fish_scales import State
-    colorado = State(dummy, 1)
-    colorado.build_district(list(filled_graph)[0], colorado.population)
-    assert colorado.area = colorado.districts[0].area
+    assert fill_colorado.area == fill_colorado.districts[0].area
 
 
-def test_state build_district_perimiter(dummy_request, filled_graph):
+def test_state_build_district_perimiter(fill_colorado):
     """Test that district perimiter == state perimiter when there is one district in the state."""
-    from gerrypy.scripts.fish_scales import State
-    colorado = State(dummy, 1)
-    colorado.build_district(list(filled_graph)[0], colorado.population)
-    assert colorado.districts[0].perimeter == []
+    assertion = True
+    for tract in fill_colorado.districts[0].perimeter:
+        if tract in fill_colorado.districts[0].nodes.nodes():
+            assertion = False
+    assert assertion
 
 
 # @pytest.mark.parametrize("bad_node", BAD_NODES)
