@@ -36,7 +36,7 @@ class OccupiedDist(object):
     properties accordingly
     """
 
-    def __init__(self, districtID, tracts=None):
+    def __init__(self, districtID, tracts=None, graph=TRACTGRAPH):
         """."""
         self.nodes = nx.Graph()
         self.perimeter = []
@@ -46,7 +46,7 @@ class OccupiedDist(object):
         if tracts:
             try:
                 for tract in tracts:
-                    self.add_node(tract, TRACTGRAPH)
+                    self.add_node(tract, graph)
             except TypeError:
                 raise TypeError('Tracts must be iterable.')
 
@@ -98,7 +98,7 @@ class UnoccupiedDist(OccupiedDist):
     properties accordingly
     """
 
-    def __init__(self, districtID, tracts=None):
+    def __init__(self, districtID, tracts=None, graph=TRACTGRAPH):
         """."""
         self.nodes = nx.Graph()
         self.perimeter = []
@@ -108,7 +108,7 @@ class UnoccupiedDist(OccupiedDist):
         if tracts:
             try:
                 for tract in tracts:
-                    self.add_node(tract, TRACTGRAPH)
+                    self.add_node(tract, graph)
             except TypeError:
                 raise TypeError('Tracts must be iterable.')
 
@@ -167,11 +167,10 @@ class State(object):
         self.population = 0
         self.area = 0
         self.num_dst = num_dst
-        global TRACTGRAPH
-        TRACTGRAPH = fill_graph(request)
-        landmass = nx.connected_components(TRACTGRAPH)
+        self.graph = fill_graph(request)
+        landmass = nx.connected_components(self.graph)
         for island in landmass:
-            unoc = UnoccupiedDist(None, island)
+            unoc = UnoccupiedDist(None, tracts=island, graph=self.graph)
             for tract in unoc.nodes.nodes():
                 if tract.isborder == 1:
                     unoc.perimeter.append(tract)
