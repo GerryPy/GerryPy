@@ -176,28 +176,28 @@ class State(object):
                 dst.add_node(new_tract, graph)
                 neighbors = graph.neighbors(new_tract)
                 unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in unoc_dst]
-                if len(unassigned_neighbors) > 1:
-                    tested_nodes = node_connected_component(graph, unassigned_neighbors[0])
-                    for i in range(1, len(unassigned_neighbors)):
-                        if unassigned_neighbors[i] not in tested_nodes:
+                # if len(unassigned_neighbors) > 1:
+                #     tested_nodes = node_connected_component(graph, unassigned_neighbors[0])
+                #     for i in range(1, len(unassigned_neighbors)):
+                #         if unassigned_neighbors[i] not in tested_nodes:
                             #we've divided the unassigned nodes into multiple fields. handle this!
 
 
-        while dst.population < (self.target_pop - 1000):
-            dont_add = set()
-            new_tract = State.select_next(dst)
-            if new_tract is None:
-                break
-            # not implemented yet
-            answer = self.splits_unoccupied(new_tract)
-            if answer['add']:
-                dst.add_node(new_tract)
-                for unoc_dst in self.unoccupied:
-                    if new_tract in unoc_dst.nodes:
-                        unoc_dst.rem_node(new_tract)
-            else:
-                dont_add.add(new_tract)
-                continue
+        # while dst.population < (self.target_pop - 1000):
+        #     dont_add = set()
+        #     new_tract = State.select_next(dst)
+        #     if new_tract is None:
+        #         break
+        #     # not implemented yet
+        #     answer = self.splits_unoccupied(new_tract)
+        #     if answer['add']:
+        #         dst.add_node(new_tract)
+        #         for unoc_dst in self.unoccupied:
+        #             if new_tract in unoc_dst.nodes:
+        #                 unoc_dst.rem_node(new_tract)
+        #     else:
+        #         dont_add.add(new_tract)
+        #         continue
 
         # while dst.population < population_share:  # ← This is vague criteria
         #     # select the most appropriate node for the district to add
