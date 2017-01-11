@@ -298,7 +298,7 @@ def test_unoc_rem_nodes(filled_graph):
     assert (
         unoc.nodes.nodes() == [list(filled_graph)[0]] and
         unoc.population == node_pop and
-        unoc.perimeter.sort() == filled_graph_perim.sort()
+        unoc.perimeter.sort(key=lambda tract: tract.gid) == filled_graph_perim.sort(key=lambda tract: tract.gid)
     )
 
 
