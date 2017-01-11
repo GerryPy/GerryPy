@@ -237,7 +237,6 @@ class State(object):
         return best
 
     def fill_state(self, graph=TRACTGRAPH):
-        """."""
         """Build districts until all unoccupied tracts are claimed."""
 
         rem_pop = 0
