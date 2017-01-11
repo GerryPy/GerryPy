@@ -76,9 +76,12 @@ GerryPy
             <br>
             <input type="submit">
         </form>
-        <div class="jumbotron">
-            This is where the map might go
+        <div id="map">
         </div>
     </div>
     <div class='container'>This is where the data might go</div>
+    <script type="text/javascript" src="{{ request.static_url('gerrypy:static/map.js') }}"></script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyATNCmyRPL0kWzFqcQ2D9cfMol1kOXsaoI&callback=initMap">
+    </script>
 {% endblock %}
