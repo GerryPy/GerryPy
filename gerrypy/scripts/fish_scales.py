@@ -51,7 +51,7 @@ class OccupiedDist(object):
                 raise TypeError('Tracts must be iterable.')
 
     def add_node(self, node, graph):
-        """Add node to nodes and updates district properties accordingly."""
+        """Add node to nodes and updates district properties."""
         node.districtid = self.districtID
         self.nodes.add_node(node)
         for edge in graph.neighbors(node):
@@ -67,7 +67,7 @@ class OccupiedDist(object):
                 self.perimeter.append(neighbor)
 
     def rem_node(self, node, graph):
-        """Remove node from nodes and updates district properties accordingly."""
+        """Remove node from nodes and updates district properties."""
         self.population -= node.tract_pop
         self.nodes.remove_node(node)
         self.area -= node.shape_area
