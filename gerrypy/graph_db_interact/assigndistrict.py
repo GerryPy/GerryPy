@@ -1,9 +1,10 @@
 """Use the graph to assign districts to tracts."""
 import networkx as nx
 from gerrypy.models.mymodel import Tract, District
-from sqlalchemy import func
-from sqlalchemy.sql import label
-from geoalchemy2.functions import ST_Union
+# from gerrypy.scripts.fish_scales import State
+# from sqlalchemy import func
+# from sqlalchemy.sql import label
+# from geoalchemy2.functions import ST_Union
 
 
 def assign_district(request, graph):
@@ -13,21 +14,20 @@ def assign_district(request, graph):
         tract_row.districtid = tract.districtid
 
 
+def assign_district(request, state):
+    """Assign a district ID to a single row in tract table."""
+    for district in state.districts:
+        for tract in district.nodes.nodes():
+            tract_row = request.dbsession.query(Tract).get(tract.gid)
+            tract_row.disrictid = tract.districtid
+
+
 def populate_district_table(request, state):
     """Insert distrcts into district."""
     request.dbsession.query(District).delete()
-    # geoms = request.dbsession.query(Tract.districtid,
-    #                                 ST_Union(Tract.geom).label('geom').group_by(Tract.district))
     for district in state.districts:
-        geom = request.dbsession.query(
-            Tract.districtid,
-            ST_Union(Tract.districtid).label('districtid')
-            ).filter(Tract.districtid == district.districtID
-            ).group_by(Tract.districtid
-            ).all()
-        import pdb; pdb.set_trace()
-        new_district = District(id=district.districtID,
+        new_district = District(districtid=district.districtID,
                                 population=district.population,
-                                area=district.area,
-                                geom=geom)
+                                area=district.area)
         request.dbsession.add(new_district)
+    request.dbsession.execute('select * from update_district();')
