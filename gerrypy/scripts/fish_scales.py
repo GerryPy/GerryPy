@@ -141,12 +141,12 @@ class State(object):
     fill_state(self): continues to build districts until all unoccupied tracts are claimed
     """
 
-
     def __init__(self, request, num_dst):
         """Build unoccupied district(s) for entire state."""
         self.unoccupied = []
         self.districts = []
         self.population = 0
+        self.area = 0
         global TRACTGRAPH
         TRACTGRAPH = fill_graph(request)
         landmass = nx.connected_components(TRACTGRAPH)
@@ -154,13 +154,51 @@ class State(object):
             dist = OccupiedDist(island)
             self.population += dist.population
             self.unoccupied.append(dist)
+            self.area += dist.area
+        self.target_pop = self.population // num_dst
 
         # construct target districts
 
-    def build_district(self, start, population):
+    def build_district(self, start, population, graph=TRACTGRAPH):
         """Create a new district stemming from the start node with a given population."""
         dst = OccupiedDist()
         self.districts.append(dst)
+        while True:
+            new_tract = State.select_next(dst)
+            if abs((new_tract.population + dst.population) - population) > abs(dst.population - population):
+                break
+            else:
+                unoc_dst = None
+                for unoc in self.unoccupied:
+                    if new_tract in unoc.perimeter:
+                        unoc_dst = unoc
+                unoc_dst.rem_node(new_tract)
+                dst.add_node(new_tract, graph)
+                neighbors = graph.neighbors(new_tract)
+                unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in unoc_dst]
+                if len(unassigned_neighbors) > 1:
+                    tested_nodes = node_connected_component(graph, unassigned_neighbors[0])
+                    for i in range(1, len(unassigned_neighbors)):
+                        if unassigned_neighbors[i] not in tested_nodes:
+                            #we've divided the unassigned nodes into multiple fields. handle this!
+
+
+        while dst.population < (self.target_pop - 1000):
+            dont_add = set()
+            new_tract = State.select_next(dst)
+            if new_tract is None:
+                break
+            # not implemented yet
+            answer = self.splits_unoccupied(new_tract)
+            if answer['add']:
+                dst.add_node(new_tract)
+                for unoc_dst in self.unoccupied:
+                    if new_tract in unoc_dst.nodes:
+                        unoc_dst.rem_node(new_tract)
+            else:
+                dont_add.add(new_tract)
+                continue
+
         # while dst.population < population_share:  # ← This is vague criteria
         #     # select the most appropriate node for the district to add
 
@@ -172,8 +210,13 @@ class State(object):
         #     # else decide the best thing to do             ← This is a BIG step
         #     pass
 
-    # def fill_state(self):
-    #     """Build districts until all unoccupied tracts are claimed."""
+    def fill_state(self):
+        """Build districts until all unoccupied tracts are claimed."""
+
+        # find starting tract
+        def sort_by(tract):
+            return len(set(map(lambda x: x.districtID, TRACTGRAPH.neighbors(tract))))
+        unoc_perimeter = sorted(self.unoccupied.perimeter, key=sort_by)
     #     for num in range(self.num_dst):
     #         start = Node(0, [], None)  # node in self.districts[-1].perimeter
     #         # that doesn't belong to a district and has neighbors
@@ -181,3 +224,26 @@ class State(object):
 
     #         # if self.districts is empty, start will be a random border node on
     #         self.build_district(start, self.population // self.num_dst)
+
+    def split_unoccupied(self):
+        pass
+
+    def splits_unoccupied(self, tract):
+        add, splits = True, False
+        return {'add': add, 'splits': splits}
+
+    @staticmethod
+    def select_next(dst):
+        """Choose the next best tract to add to growing district."""
+        best_count = 0
+        best = None
+        for perimeter_tract in dst.perimeter:
+            if perimeter_tract.districtID is None:
+                count = 0
+                for neighbor in perimeter_tract.neighbors():
+                    if neighbor.districtID == dst.district_number:
+                        count += 1
+                if count > best_count:
+                    best_count = count
+                    best = perimeter_tract
+        return best
