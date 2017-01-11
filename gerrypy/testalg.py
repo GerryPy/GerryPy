@@ -317,7 +317,7 @@ def test_state_unoccupied_district_has_all_tracts(dummy_request):
     nodes = state.unoccupied[0].nodes
     queries = dummy_request.dbsession.query(Tract).all()
     assert len(nodes) == len(queries)
-
+OccupiedDist
 
 def test_state_unoccupied_district_has_no_perimeter(dummy_request):
     """Test that the perimeter of the unoccupied district is empty."""
@@ -431,6 +431,33 @@ def test_added_node_not_in_unoc_perimeter(start_district, filled_graph):
     new_node = dst.perimeter[0]
     state.swap(dst, new_node, filled_graph)
     assert new_node not in state.unoccupied[0].perimeter
+
+
+def test_build_state_update_pop(filled_graph):
+    """Test that after filling the state, no unassigned pop remains."""
+    from gerrypy.scripts.fish_scales import State
+    assert State.fill_state()
+
+
+def test_build_state_no_unoccupied(filled_graph):
+    """Test that after filling the state, no unoccupied tracts remain."""
+    from gerrypy.scripts.fish_scales import State
+    State.fill_state()
+    assert State.unoccupied == []
+
+
+def test_build_state_right_number_districts(filled_graph):
+    """Test that filling the state creates the correct number of districts."""
+    from gerrypy.scripts.fish_scales import State
+    State.fill_state()
+    assert len(State.districts) == State.num_dist
+
+
+def test_build_State_runs_build_district(filled_graph):
+    from gerrypy.scripts.fish_scales import State
+    State.fill_state()
+
+
 
 # @pytest.mark.parametrize("bad_node", BAD_NODES)
 # def test_district_add_node_error(bad_node):
