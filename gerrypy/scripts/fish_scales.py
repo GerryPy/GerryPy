@@ -170,6 +170,9 @@ class State(object):
         landmass = nx.connected_components(TRACTGRAPH)
         for island in landmass:
             unoc = UnoccupiedDist(None, island)
+            for tract in unoc.nodes.nodes():
+                if tract.isborder == 1:
+                    unoc.perimeter.append(tract)
             self.population += unoc.population
             self.unoccupied.append(unoc)
             self.area += unoc.area
@@ -185,14 +188,14 @@ class State(object):
         rem_dist = self.num_dst - len(self.districts)
         tgt_population = rem_pop / rem_dist
         for num in range(self.num_dst):
-            self.build_district(tgt_population, num + 1)
+            self.build_district(tgt_population, num + 1, graph)
 
     def build_district(self, tgt_population, dist_num, graph=TRACTGRAPH):
         """Create a new district stemming from the start node with a given population."""
         building = True
         dst = OccupiedDist(dist_num)
         self.districts.append(dst)
-        start = self.find_start()
+        start = self.find_start(graph)
         self.swap(dst, start, graph)
         while building:
             new_tract = self.select_next(start, dst)
@@ -219,6 +222,7 @@ class State(object):
     def swap(self, dst, new_tract, graph):
         """Exchange tract from unoccupied district to district."""
         unoc_dst = None
+        import pdb; pdb.set_trace()
         for island in self.unoccupied:
             if new_tract in island.perimeter:
                 unoc_dst = island
