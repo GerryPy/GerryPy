@@ -181,7 +181,7 @@ class State(object):
 
         # construct target districts
 
-    def fill_state(self, graph=TRACTGRAPH):
+    def fill_state(self):
         """Build districts until all unoccupied tracts are claimed."""
         rem_pop = 0
         for unoc in self.unoccupied:
@@ -189,7 +189,7 @@ class State(object):
         rem_dist = self.num_dst - len(self.districts)
         tgt_population = rem_pop / rem_dist
         for num in range(self.num_dst):
-            self.build_district(tgt_population, num + 1, graph)
+            self.build_district(tgt_population, num + 1, self.graph)
 
     def build_district(self, tgt_population, dist_num, graph=TRACTGRAPH):
         """Create a new district stemming from the start node with a given population."""
