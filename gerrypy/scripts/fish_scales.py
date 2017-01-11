@@ -177,10 +177,11 @@ class State(object):
                 neighbors = graph.neighbors(new_tract)
                 unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in unoc_dst]
                 if len(unassigned_neighbors) > 1:
-                    tested_nodes = node_connected_component(graph, unassigned_neighbors[0])
-                    for i in range(1, len(unassigned_neighbors)):
-                        if unassigned_neighbors[i] not in tested_nodes:
-                            #we've divided the unassigned nodes into multiple fields. handle this!
+                    # unoc1 = UnoccupiedDist(nx.node_connected_component(graph, unassigned_neighbors[0]))
+                    for i in range(len(unassigned_neighbors)):
+                        if not nx.has_path(unoc_dst.nodes, unassigned_neighbors[i], unassigned_neighbors[i - 1]):
+                            self.split_graph(unoc)
+                            
 
 
         while dst.population < (self.target_pop - 1000):
@@ -247,3 +248,12 @@ class State(object):
                     best_count = count
                     best = perimeter_tract
         return best
+
+    def split_unoccupied_dist(self, dist):
+        """Removes unoccupied dist from State and adds contiguous unoccupied sub-districts."""
+        self.unoccupied.remove(dist)
+        new_graphs = nx.connected_components(dist.nodes)
+        new_dists = []
+        for graph in new_graphs:
+            new_dists.append(UnoccupiedDist(list(graph)))
+        self.unoccupied.extend(new_dists)
