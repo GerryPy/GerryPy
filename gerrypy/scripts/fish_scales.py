@@ -36,7 +36,7 @@ class OccupiedDist(object):
     properties accordingly
     """
 
-    def __init__(self, tracts=None, districtID=None):
+    def __init__(self, districtID, tracts=None):
         """."""
         self.nodes = nx.Graph()
         self.perimeter = []
@@ -52,6 +52,7 @@ class OccupiedDist(object):
 
     def add_node(self, node, graph):
         """Add node to nodes and updates district properties accordingly."""
+        node.districtid = self.districtID
         self.nodes.add_node(node)
         edge_lst = graph.neighbors(node)
         for edge in edge_lst:
@@ -102,6 +103,7 @@ class UnoccupiedDist(OccupiedDist):
 
     def add_node(self, node, graph):
         """Add node to nodes and updates district properties accordingly."""
+        node.districtid = None
         self.nodes.add_node(node)
         self.population += node.tract_pop
         neighbors = graph.neighbors(node)
@@ -159,43 +161,15 @@ class State(object):
 
         # construct target districts
 
-    def build_district(self, start, tgt_population, graph=TRACTGRAPH):
+    def build_district(self, start, tgt_population, dist_num, graph=TRACTGRAPH):
         """Create a new district stemming from the start node with a given population."""
-        # split = False
-        # dst = OccupiedDist()
-        # self.districts.append(dst)
-        # while True:
-        #     new_tract = State.select_next(dst)
-        #     high_pop = (new_tract.population + dst.population)
-        #     if abs(high_pop - tgt_population) > abs(dst.population - tgt_population):
-        #         break
-        #     else:
-                # unoc_dst = None
-                # for unoc in self.unoccupied:
-                #     if new_tract in unoc.perimeter:
-                #         unoc_dst = unoc
-                # unoc_dst.rem_node(new_tract)
-                # dst.add_node(new_tract, graph)
-                # neighbors = graph.neighbors(new_tract)
-                # unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in unoc_dst]
-                # if len(unassigned_neighbors) > 1:
-                #     for i in range(len(unassigned_neighbors)):
-                #         if not nx.has_path(
-                #                 unoc_dst.nodes,
-                #                 unassigned_neighbors[i],
-                #                 unassigned_neighbors[i - 1]
-                #             ):
-        #                     split = True
-        # if split:
-        #     self.split_unoccupied_dist(unoc_dst)
-        #     self.shift_dist(dst)
-
-
-        dont_add = set()
-        dst = OccupiedDist()
+        building = True
+        dst = OccupiedDist(dist_num)
         self.districts.append(dst)
-        while True:
-            new_tract = self.select_next(dst, dont_add)
+        while building:
+            new_tract = State.select_next(dst)
+            if new_tract is None:
+                break
             high_pop = (new_tract.population + dst.population)
             if abs(high_pop - tgt_population) > abs(dst.population - tgt_population):
                 break
@@ -211,45 +185,61 @@ class State(object):
                 if len(unassigned_neighbors) > 1:
                     for i in range(len(unassigned_neighbors)):
                         if not nx.has_path(
-                                unoc_dst.nodes,
-                                unassigned_neighbors[i],
-                                unassigned_neighbors[i - 1]
-                            ):
-                            unoc_dst.add_node(new_tract, graph)
-                            dst.rem_node(new_tract, graph)
-                            dont_add.add(new_tract)
+                            unoc_dst.nodes,
+                            unassigned_neighbors[i],
+                            unassigned_neighbors[i - 1]
+                        ):
+                            unoc_dst.rem_node(new_tract, graph)
+                            dst.add_node(new_tract, graph)
+                            building = False
 
-
-    # def shift_dist(self, district):
+    # def shift_dist(self, dst):
     #     """Move build district into the smallest bordering unoccupied district
     #     until all bordering unoccupied district populations are divisible by target population."""
 
+    def select_next(self, dst, graph=TRACTGRAPH):
+        """Choose the next best tract to add to growing district."""
+        best_count = 0
+        best = None
+        for perimeter_tract in dst.perimeter:
+            if perimeter_tract.districtid is None:
+                count = 0
+                for neighbor in graph.neighbors(perimeter_tract):
+                    if neighbor.districtid == dst.districtID:
+                        count += 1
+                if count > best_count:
+                    best_count = count
+                    best = perimeter_tract
+        return best
 
-        # while dst.population < population_share:  # ← This is vague criteria
-        #     # select the most appropriate node for the district to add
-
-        #     # if the node borders a separate district or boundary,
-        #     # split the unoccupied district that it is in,
-        #     # and evaluate whether or not node should be added.
-
-        #     # if appropriate, use dst.add_node() to add the most appropriate node in dst.perimeter
-        #     # else decide the best thing to do             ← This is a BIG step
-        #     pass
-
-    def fill_state(self):
+    def fill_state(self, graph=TRACTGRAPH):
+        """."""
         """Build districts until all unoccupied tracts are claimed."""
 
-        # find starting tract
-        def sort_by(tract):
-            return len(set(map(lambda x: x.districtID, TRACTGRAPH.neighbors(tract))))
-        unoc_perimeter = sorted(self.unoccupied.perimeter, key=sort_by)
-    #     for num in range(self.num_dst):
-    #         start = Node(0, [], None)  # node in self.districts[-1].perimeter
-    #         # that doesn't belong to a district and has neighbors
-    #         # from multiple districts or other borders (random node to start)
+        rem_pop = 0
+        for unoc in self.unoccupied:
+            rem_pop += unoc.population
+        rem_dist = self.num_dst - len(self.districts)
+        tgt_population = rem_pop / rem_dist
+        for num in range(self.num_dst):
+            start = self.find_start()
+            self.build_district(start, tgt_population, num + 1)
 
-    #         # if self.districts is empty, start will be a random border node on
-    #         self.build_district(start, self.population // self.num_dst)
+    def find_start(self, graph=TRACTGRAPH):
+        """."""
+        best_set = set()
+        best = None
+        for tract in self.unoccupied[0].perimeter:
+            unique_dists = set()
+            for neighbor in graph.neighbors(tract):
+                for dst in self.districts:
+                    if neighbor in dst.nodes.nodes():
+                        unique_dists.add(dst)
+            if len(unique_dists) > len(best_set):
+                best_set = unique_dists
+                best = tract
+        return best
+
 
     def split_unoccupied(self):
         pass
@@ -257,24 +247,6 @@ class State(object):
     def splits_unoccupied(self, tract):
         add, splits = True, False
         return {'add': add, 'splits': splits}
-
-
-    def select_next(self, dst, dont_add):
-        """Choose the next best tract to add to growing district."""
-        best_count = 0
-        best = None
-        for perimeter_tract in dst.perimeter:
-            if perimeter_tract not in dont_add:
-                for unoc in self.unoccupied:
-                    if perimeter_tract in unoc:
-                        count = 0
-                        for neighbor in perimeter_tract.neighbors():
-                            if neighbor in dst.nodes.nodes():
-                                count += 1
-                        if count > best_count:
-                            best_count = count
-                            best = perimeter_tract
-        return best
 
     def split_unoccupied_dist(self, dist):
         """Removes unoccupied dist from State and adds contiguous unoccupied sub-districts."""
@@ -284,3 +256,31 @@ class State(object):
         for itr in new_iters:
             new_dists.append(UnoccupiedDist(itr))
         self.unoccupied.extend(new_dists)
+
+       # dont_add = set()
+        # dst = OccupiedDist()
+        # self.districts.append(dst)
+        # while True:
+        #     new_tract = self.select_next(dst, dont_add)
+        #     high_pop = (new_tract.population + dst.population)
+        #     if abs(high_pop - tgt_population) > abs(dst.population - tgt_population):
+        #         break
+        #     else:
+        #         unoc_dst = None
+        #         for unoc in self.unoccupied:
+        #             if new_tract in unoc.perimeter:
+        #                 unoc_dst = unoc
+        #         unoc_dst.rem_node(new_tract)
+        #         dst.add_node(new_tract, graph)
+        #         neighbors = graph.neighbors(new_tract)
+        #         unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in unoc_dst]
+        #         if len(unassigned_neighbors) > 1:
+        #             for i in range(len(unassigned_neighbors)):
+        #                 if not nx.has_path(
+        #                         unoc_dst.nodes,
+        #                         unassigned_neighbors[i],
+        #                         unassigned_neighbors[i - 1]
+        #                     ):
+        #                     unoc_dst.add_node(new_tract, graph)
+        #                     dst.rem_node(new_tract, graph)
+        #                     dont_add.add(new_tract)
