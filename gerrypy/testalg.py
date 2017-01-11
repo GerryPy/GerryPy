@@ -30,12 +30,12 @@ def fill_colorado(dummy_request, filled_graph):
 
 
 def test_fill_graph_from_db(filled_graph, dummy_request):
-    """Test that fill graph returns a graph with same number of nodes db rows."""
+    """Test fill graph returns a graph with same number of nodes as db rows."""
     assert len(filled_graph.nodes()) == len(dummy_request.dbsession.query(Tract).all())
 
 
 def test_fill_graph_num_nodes(filled_graph, dummy_request):
-    """Test that fill graph returns a graph with expected number of nodes."""
+    """Test fill graph returns a graph with expected number of nodes."""
     assert len(filled_graph.nodes()) == 1249
 
 
@@ -95,21 +95,21 @@ def test_district_add_with_tracts(filled_graph):
 
 
 def test_unoc_constructor_nodes():
-    """Test that unoccupied district constructor creates properties for population, nodes, and perimeters."""
+    """Test that unoccupied district constructor creates node property."""
     from gerrypy.scripts.fish_scales import UnoccupiedDist
     unoc = UnoccupiedDist(None)
     assert unoc.nodes.nodes() == []
 
 
 def test_unoc_constructor_perimeter():
-    """Test that unoccupied district constructor creates properties for population, nodes, and perimeters."""
+    """Test that unoccupied district constructor creates perimeter property."""
     from gerrypy.scripts.fish_scales import UnoccupiedDist
     unoc = UnoccupiedDist(None)
     assert unoc.perimeter == []
 
 
 def test_unoc_constructor_population():
-    """Test that unoccupied district constructor creates properties for population, nodes, and perimeters."""
+    """Test that unoccupied district constructor creates population property."""
     from gerrypy.scripts.fish_scales import UnoccupiedDist
     unoc = UnoccupiedDist(None)
     assert unoc.population == 0
@@ -127,7 +127,7 @@ def test_district_add_node(filled_graph):
 
 
 def test_district_add_node_population(filled_graph):
-    """Test that district add_node method properly adds a node to nodes."""
+    """Test that district add_node method properly adds node pop value to nodes."""
     from gerrypy.scripts.fish_scales import OccupiedDist
     dist = OccupiedDist(1)
     node_pop = 0
@@ -138,7 +138,7 @@ def test_district_add_node_population(filled_graph):
 
 
 def test_district_add_node_perimeter(filled_graph):
-    """Test that district add_node method properly adds a node to nodes."""
+    """Test that district add_node method adds a perimiter to nodes."""
     from gerrypy.scripts.fish_scales import OccupiedDist
     dist = OccupiedDist(1)
     node_pop = 0
