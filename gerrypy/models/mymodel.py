@@ -31,6 +31,7 @@ class Tract(Base):
     shape_area = Column(Numeric)
     tract_pop = Column(Integer)
     geom = Column(Geometry('MultiPolygon'))
+    isborder = Column(Integer)
 
 
 class Edge(Base):
