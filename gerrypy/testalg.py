@@ -286,7 +286,7 @@ def test_unoc_rem_nodes(filled_graph):
     node_pop = 0
     filled_graph_perim = []
     for node in filled_graph:
-        if node.Isborder:
+        if node.isborder:
             filled_graph_perim.append(node)
     for node in filled_graph:
         unoc.add_node(node, filled_graph)
@@ -323,7 +323,7 @@ def test_state_unoccupied_district_has_no_perimeter(dummy_request):
     """Test that the perimeter of the unoccupied district is empty."""
     from gerrypy.scripts.fish_scales import State, TRACTGRAPH
     state = State(dummy_request, 7)
-    assert state.unoccupied[0].perimeter == []
+    assert len(state.unoccupied[0].perimeter) == 36
 
 
 def test_state_population(dummy_request):
@@ -343,33 +343,33 @@ def test_state_districts(dummy_request):
     assert state.districts == []
 
 
-# def test_state_build_district(fill_colorado):
-#     """Test that tracts are added to districts."""
-#     assert fill_colorado.districts
+def test_state_build_district(fill_colorado):
+    """Test that tracts are added to districts."""
+    assert fill_colorado.districts
 
 
-# def test_state_build_district_unoccupied(fill_colorado):
-#     """Test that filling the whole state with one district leaves no unoccupied tracts."""
-#     assert len(fill_colorado.districts[0].nodes.nodes()) > 0
+def test_state_build_district_unoccupied(fill_colorado):
+    """Test that filling the whole state with one district leaves no unoccupied tracts."""
+    assert len(fill_colorado.districts[0].nodes.nodes()) > 0
 
 
-# def test_state_build_district_population(fill_colorado):
-#     """Test that district pop == state pop when there is one district in the state."""
-#     total_pop = fill_colorado.districts[0].population + fill_colorado.unoccupied[0].population
-#     assert fill_colorado.population == total_pop
+def test_state_build_district_population(fill_colorado):
+    """Test that district pop == state pop when there is one district in the state."""
+    total_pop = fill_colorado.districts[0].population + fill_colorado.unoccupied[0].population
+    assert fill_colorado.population == total_pop
 
 def test_state_build_district_area(fill_colorado):
     """Test that district area == state area when there is one district in the state."""
     assert fill_colorado.area == fill_colorado.districts[0].area + fill_colorado.unoccupied[0].area
 
 
-# def test_state_build_district_perimiter(fill_colorado):
-#     """Test that district perimiter == state perimiter when there is one district in the state."""
-#     assertion = True
-#     for tract in fill_colorado.districts[0].perimeter:
-#         if tract in fill_colorado.districts[0].nodes.nodes():
-#             assertion = False
-#     assert assertion
+def test_state_build_district_perimiter(fill_colorado):
+    """Test that district perimiter == state perimiter when there is one district in the state."""
+    assertion = True
+    for tract in fill_colorado.districts[0].perimeter:
+        if tract in fill_colorado.districts[0].nodes.nodes():
+            assertion = False
+    assert assertion
 
 @pytest.fixture()
 def start_state(dummy_request):
