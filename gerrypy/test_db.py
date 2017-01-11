@@ -4,7 +4,7 @@ from pyramid import testing
 from gerrypy.models.mymodel import Tract, District, Edge
 from gerrypy.models.meta import Base
 from gerrypy.scripts.fish_scales import State, OccupiedDist
-from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
+from gerrypy.graph_db_interact.assigndistrict import populate_district_table
 import sys
 import os
 import networkx as nx
@@ -110,33 +110,33 @@ def test_empty_district_nums(dummy_request, filled_graph):
     assert no_d_id == 0
 
 
-def test_assign_district_add_one_dist_id(dummy_request, filled_graph):
-    """Test that a district id is filled by assign_district."""
-    nx.nodes(filled_graph)[0].districtid = 3
-    assign_district(dummy_request, filled_graph)
-    query = dummy_request.dbsession.query(Tract)
-    no_d_id = query.filter(Tract.districtid == None).count()
-    assert no_d_id == 0
+# def test_assign_district_add_one_dist_id(dummy_request, filled_graph):
+#     """Test that a district id is filled by assign_district."""
+#     nx.nodes(filled_graph)[0].districtid = 3
+#     assign_district(dummy_request, filled_graph)
+#     query = dummy_request.dbsession.query(Tract)
+#     no_d_id = query.filter(Tract.districtid == None).count()
+#     assert no_d_id == 0
 
 
-def test_assign_district_adds_mult_dist_ids(dummy_request, filled_graph):
-    """Test that multiple district ids are filled by assign_district."""
-    nx.nodes(filled_graph)[0].districtid = 3
-    nx.nodes(filled_graph)[1].districtid = 4
-    assign_district(dummy_request, filled_graph)
-    query = dummy_request.dbsession.query(Tract)
-    no_d_id = query.filter(Tract.districtid == None).count()
-    assert no_d_id == 0
+# def test_assign_district_adds_mult_dist_ids(dummy_request, filled_graph):
+#     """Test that multiple district ids are filled by assign_district."""
+#     nx.nodes(filled_graph)[0].districtid = 3
+#     nx.nodes(filled_graph)[1].districtid = 4
+#     assign_district(dummy_request, filled_graph)
+#     query = dummy_request.dbsession.query(Tract)
+#     no_d_id = query.filter(Tract.districtid == None).count()
+#     assert no_d_id == 0
 
 
-def test_assign_district_correct_dist_assigned(dummy_request, filled_graph):
-    """Test that assign_district adds the correct district to the db."""
-    tractid = nx.nodes(filled_graph)[0].gid
-    nx.nodes(filled_graph)[0].districtid = 3
-    assign_district(dummy_request, filled_graph)
-    query = dummy_request.dbsession.query(Tract)
-    test_tract = query.filter(Tract.gid == tractid).first()
-    assert test_tract.districtid == 3
+# def test_assign_district_correct_dist_assigned(dummy_request, filled_graph):
+#     """Test that assign_district adds the correct district to the db."""
+#     tractid = nx.nodes(filled_graph)[0].gid
+#     nx.nodes(filled_graph)[0].districtid = 3
+#     assign_district(dummy_request, filled_graph)
+#     query = dummy_request.dbsession.query(Tract)
+#     test_tract = query.filter(Tract.gid == tractid).first()
+#     assert test_tract.districtid == 3
 
 
 def test_insert_district_table(dummy_request):
