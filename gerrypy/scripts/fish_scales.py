@@ -216,7 +216,7 @@ class State(object):
 
         # find starting tract
         def sort_by(tract):
-            return len(set(map(lambda x: x.districtid, TRACTGRAPH.neighbors(tract))))
+            return len(set(map(lambda x: x.districtID, TRACTGRAPH.neighbors(tract))))
         unoc_perimeter = sorted(self.unoccupied.perimeter, key=sort_by)
     #     for num in range(self.num_dst):
     #         start = Node(0, [], None)  # node in self.districts[-1].perimeter
@@ -239,10 +239,10 @@ class State(object):
         best_count = 0
         best = None
         for perimeter_tract in dst.perimeter:
-            if perimeter_tract.disrictid is None:
+            if perimeter_tract.districtID is None:
                 count = 0
                 for neighbor in perimeter_tract.neighbors():
-                    if neighbor.disrictid == dst.district_number:
+                    if neighbor.districtID == dst.district_number:
                         count += 1
                 if count > best_count:
                     best_count = count

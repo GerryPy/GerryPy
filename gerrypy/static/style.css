@@ -13,3 +13,8 @@
     margin-top: 20vh;
     background-color: rgba(238,238,238,0.9)
 }
+
+#map {
+    height: 70vh;
+    width: 92vw;
+}
