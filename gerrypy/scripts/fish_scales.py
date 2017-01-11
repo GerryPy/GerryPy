@@ -146,6 +146,7 @@ class State(object):
         self.unoccupied = []
         self.districts = []
         self.population = 0
+        self.area = 0
         global TRACTGRAPH
         TRACTGRAPH = fill_graph(request)
         landmass = nx.connected_components(TRACTGRAPH)
@@ -153,15 +154,35 @@ class State(object):
             dist = OccupiedDist(island)
             self.population += dist.population
             self.unoccupied.append(dist)
+            self.area += dist.area
         self.target_pop = self.population // num_dst
 
         # construct target districts
 
-    def build_district(self, start, population):
+    def build_district(self, start, population, graph=TRACTGRAPH):
         """Create a new district stemming from the start node with a given population."""
-
         dst = OccupiedDist()
         self.districts.append(dst)
+        while True:
+            new_tract = State.select_next(dst)
+            if abs((new_tract.population + dst.population) - population) > abs(dst.population - population):
+                break
+            else:
+                unoc_dst = None
+                for unoc in self.unoccupied:
+                    if new_tract in unoc.perimeter:
+                        unoc_dst = unoc
+                unoc_dst.rem_node(new_tract)
+                dst.add_node(new_tract, graph)
+                neighbors = graph.neighbors(new_tract)
+                unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in unoc_dst]
+                if len(unassigned_neighbors) > 1:
+                    tested_nodes = node_connected_component(graph, unassigned_neighbors[0])
+                    for i in range(1, len(unassigned_neighbors)):
+                        if unassigned_neighbors[i] not in tested_nodes:
+                            #we've divided the unassigned nodes into multiple fields. handle this!
+
+
         while dst.population < (self.target_pop - 1000):
             dont_add = set()
             new_tract = State.select_next(dst)
