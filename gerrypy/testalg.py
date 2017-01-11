@@ -74,7 +74,7 @@ def test_district_add_node(filled_graph):
     for node in filled_graph:
         dist.add_node(node, filled_graph)
         node_pop += node.tract_pop
-    assert dist.nodes.nodes().sort() == filled_graph.nodes().sort()
+    assert dist.nodes.nodes().sort(key=lambda t: t.gid) == filled_graph.nodes().sort(key=lambda t: t.gid)
 
 
 def test_district_add_node_population(filled_graph):
@@ -112,7 +112,7 @@ def test_unoc_add_node(filled_graph):
         unoc.add_node(node, filled_graph)
         node_pop += node.tract_pop
     assert (
-        unoc.nodes.nodes().sort() == filled_graph.nodes().sort() and
+        unoc.nodes.nodes().sort(key=lambda t: t.gid) == filled_graph.nodes().sort(key=lambda t: t.gid) and
         unoc.population == node_pop
         # unoc.population == node_pop and
         # len(unoc.perimeter) == 36
@@ -227,7 +227,7 @@ def test_district_rem_nodes_perimeter(filled_graph):
         removed = filled_graph.nodes()[len(filled_graph) - ind - 1]
         node_pop -= removed.tract_pop
         dist.rem_node(removed, filled_graph)
-    assert dist.perimeter.sort() == [filled_graph.neighbors(list(filled_graph)[0])].sort()
+    assert dist.perimeter.sort(key=lambda tract: tract.gid) == filled_graph.neighbors(filled_graph.nodes()[0]).sort(key=lambda tract: tract.gid)
 
 
 def test_unoc_rem_nodes(filled_graph):
@@ -307,7 +307,7 @@ def test_state_build_district_unoccupied(fill_colorado):
 
 def test_state_build_district_population(fill_colorado):
     """Test that district pop == state pop when there is one district in the state."""
-    total_pop = fill_colorado.districts[0].population +  fill_colorado.unoccupied[0].population
+    total_pop = fill_colorado.districts[0].population + fill_colorado.unoccupied[0].population
     assert fill_colorado.population == total_pop
 
 
@@ -324,6 +324,19 @@ def test_state_build_district_perimiter(fill_colorado):
             assertion = False
     assert assertion
 
+
+def test_swap_returns_correct_unoc_dist(dummy_request, filled_graph):
+    """Test swap from unoc to oc returns the correct unoc district."""
+    from gerrypy.scripts.fish_scales import State, OccupiedDist
+    state = State(dummy_request, 2)
+    node = filled_graph.nodes()[0]
+    dst = OccupiedDist(1)
+    state.unoccupied[0].perimeter.append(node)
+    state.unoccupied[0].rem_node(node, filled_graph)
+    dst.add_node(node, filled_graph)
+    neighbors = filled_graph.neighbors(node)
+    assert state.swap(dst, neighbors[0], filled_graph) is state.unoccupied[0]
+    assert filled_graph.neighbors(node).sort(key=lambda tract: tract.gid) == state.unoccupied[0].perimeter.sort(key=lambda tract: tract.gid)
 
 # @pytest.mark.parametrize("bad_node", BAD_NODES)
 # def test_district_add_node_error(bad_node):
