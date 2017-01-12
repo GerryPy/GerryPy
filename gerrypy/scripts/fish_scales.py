@@ -193,8 +193,8 @@ class State(object):
             tgt_population = rem_pop / rem_dist
             self.build_district(tgt_population, num + 1, self.graph)
 
-        from graph_db_interact.assigndistrict import assign_district, populate_district_table
-        assign_district(self.request, self.graph)
+        from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
+        assign_district(self.request, self)
         populate_district_table(self.request, self)
         if self.unoccupied:
             return False
@@ -212,7 +212,7 @@ class State(object):
             new_tract = self.select_next(dst, graph)
             if new_tract is None:
                 for unoc in self.unoccupied:
-                    if not len(unoc):
+                    if not len(unoc.nodes.nodes()):
                         self.unoccupied.remove(unoc)
                 break
             high_pop = (new_tract.tract_pop + dst.population)

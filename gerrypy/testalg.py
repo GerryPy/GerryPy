@@ -317,7 +317,6 @@ def test_state_unoccupied_district_has_all_tracts(dummy_request):
     nodes = state.unoccupied[0].nodes
     queries = dummy_request.dbsession.query(Tract).all()
     assert len(nodes) == len(queries)
-OccupiedDist
 
 def test_state_unoccupied_district_has_no_perimeter(dummy_request):
     """Test that the perimeter of the unoccupied district is empty."""
