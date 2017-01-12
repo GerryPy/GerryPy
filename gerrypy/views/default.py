@@ -1,4 +1,5 @@
 import os
+import io
 from pyramid.view import view_config
 from gerrypy.scripts.fish_scales import State
 from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
@@ -21,6 +22,27 @@ def map_view(request):
             the_file.write(build_JSON(request))
         return {'geojson': 'ok'}
     return {}
+
+
+@view_config(route_name='about', renderer='../templates/about.jinja2')
+def about_view(request):
+    with io.open("gerrypy/static/profiledescs/averydesc.txt") as fial:
+        averydesc = fial.read()
+    with io.open("gerrypy/static/profiledescs/forddesc.txt") as fial:
+        forddesc = fial.read()
+    with io.open("gerrypy/static/profiledescs/juliendesc.txt") as fial:
+        juliendesc = fial.read()
+    with io.open("gerrypy/static/profiledescs/patrickdesc.txt") as fial:
+        patrickdesc = fial.read()
+    with io.open("gerrypy/static/profiledescs/jordandesc.txt") as fial:
+        jordandesc = fial.read()
+    return {
+        "averydesc": averydesc,
+        "forddesc": forddesc,
+        "juliendesc": juliendesc,
+        "patrickdesc": patrickdesc,
+        "jordandesc": jordandesc,
+    }
 
 
 def build_JSON(request):

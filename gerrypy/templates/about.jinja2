@@ -9,9 +9,34 @@ GerryPy
     <div class="container">
       <div class="jumbotron">
         <h1>GerryPy</h1>
-        <p>About us:</p>
+        <h2>About us:</h2>
+        <div class="person">
+            <h3>Julien</h3>
+            <img class="profilepic" src="{{request.static_url('gerrypy:static/profilepics/julienpic.png')}}" alt="julien_profile_pic">
+            <p class="profiledesc">{{ juliendesc }}</p>
+        </div>
+        <div class="person">
+            <h3>Ford</h3>
+            <img class="profilepic" src="{{request.static_url('gerrypy:static/profilepics/fordpic.png')}}" alt="ford_profile_pic">
+            <p class="profiledesc">{{ forddesc }}</p>
+        </div>
+        <div class="person">
+            <h3>Avery</h3>
+            <img class="profilepic" src="{{request.static_url('gerrypy:static/profilepics/averypic.jpeg')}}" alt="Avery_profile_pic">
+            <p class="profiledesc">{{ averydesc }}</p>
+        </div>
+        <div class="person">
+            <h3>Patrick</h3>
+            <img class="profilepic" src="{{request.static_url('gerrypy:static/profilepics/patrickpic.png')}}" alt="patrick_profile_pic">
+            <p class="profiledesc">{{ patrickdesc }}</p>
+        </div>
+        <div class="person">
+            <h3>Jordan</h3>
+            <img class="profilepic" src="{{request.static_url('gerrypy:static/profilepics/jordanpic.png')}}" alt="jordan_profile_pic">
+            <p class="profiledesc">{{ jordandesc }}</p>
+        </div>
         <hr style="color:black">
-        <p><a class="btn btn-primary btn-lg" href="{{ request.route_url('map') }}" role="button">Get Started</a></p>
+        <p><a class="btn btn-primary btn-lg" href="{{ request.route_url('home') }}" role="button">Home</a></p>
       </div>
     </div>
     </div>
