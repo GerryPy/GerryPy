@@ -182,6 +182,8 @@ class State(object):
 
     def fill_state(self, request):
         """Build districts until all unoccupied tracts are claimed."""
+        from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
+
         for num in range(self.num_dst):
             rem_pop = 0
             for unoc in self.unoccupied:
@@ -190,8 +192,7 @@ class State(object):
             tgt_population = rem_pop / rem_dist
             self.build_district(tgt_population, num + 1, self.graph)
 
-        from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
-        assign_district(request, self.graph)
+        assign_district(request, self)
         populate_district_table(request, self)
         if self.unoccupied:
             return False

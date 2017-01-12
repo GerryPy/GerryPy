@@ -15,9 +15,9 @@ from .meta import Base
 class District(Base):
     """Model for each district built by the program."""
 
-    __tablename__ = 'districts'
-    id = Column(Integer, primary_key=True)
-    district_number = Column(Integer)
+    __tablename__ = 'district'
+    districtid = Column(Integer, primary_key=True)
+    #district_number = Column(Integer)
     area = Column(Float)
     population = Column(Integer)
     geom = Column(Geometry('MultiPolygon'))
@@ -43,4 +43,4 @@ class Edge(Base):
 
 
 
-Index('district_num', District.district_number, unique=True, mysql_length=255)
+Index('district_num', District.districtid, unique=True, mysql_length=255)
