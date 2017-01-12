@@ -81,7 +81,7 @@ GerryPy
         <div id="map"></div>
         <div id="info-box">?</div>
     </div>
-    <script>
+    <script id='map-script' data-json={{ request.static_url('gerrypy:views/geo.json') }}>
         var map;
         function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
