@@ -7,9 +7,6 @@ from gerrypy.models.mymodel import Tract, Edge
 import networkx as nx
 
 
-# TRACTGRAPH = None
-
-
 def fill_graph(request):
     """Build global graph from tract and edge databases."""
     graph = nx.Graph()
@@ -228,19 +225,17 @@ class State(object):
                             # unoc_dst.add_node(new_tract, self.state_graph)
                             # building = False
                             # pass
-                            unoc_neighbors = self.split_unoccupied_dist(unoc_dst)
-                            highest_pop = 0
-                            biggest = None
-                            # import pdb; pdb.set_trace()
-                            for neigh in unoc_neighbors:
-                                if neigh.population > highest_pop:
-                                    biggest = neigh
-                                    highest_pop = neigh.population
+                            unoc_neighbors = [x for x in nx.connected_components(unoc_dst.nodes)]
+                            biggest = max(unoc_neighbors, key=lambda x: len(x))
+                            # for neigh in unoc_neighbors:
+                            #     if neigh.population > highest_pop:
+                            #         biggest = neigh
+                            #         highest_pop = neigh.population
                             unoc_neighbors.remove(biggest)
+                            import pdb; pdb.set_trace()
 
                             for neigh in unoc_neighbors:
-                                nodes_to_swap = neigh.nodes.nodes()
-                                for tract in nodes_to_swap:
+                                for tract in neigh:
                                     self.swap(dst, tract)
 
     def swap(self, dst, new_tract):
@@ -249,6 +244,8 @@ class State(object):
         for island in self.unoccupied:
             if new_tract in island.perimeter:
                 unoc_dst = island
+        if unoc_dst is not self.unoccupied[0]:
+            import pdb; pdb.set_trace()
         unoc_dst.rem_node(new_tract, self.state_graph)
         dst.add_node(new_tract, self.state_graph)
         return unoc_dst
@@ -292,6 +289,5 @@ class State(object):
         index = len(self.unoccupied)
         landmass = nx.connected_components(unoc_dst.nodes)
         for island in landmass:
-            import pdb; pdb.set_trace()
             self.unoccupied.append(UnoccupiedDist(None, self.state_graph, tracts=island))
         return self.unoccupied[index:]
