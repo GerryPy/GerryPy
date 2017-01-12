@@ -27,6 +27,12 @@
     margin-bottom: 20px;
 }
 
+.desc {
+    background-color: rgba(238, 238, 238, 1);
+    border: 2px solid rgba(0, 0, 0, 1);
+    text-align: center;
+}
+
 .profilepic {
     height: 100px;
 }

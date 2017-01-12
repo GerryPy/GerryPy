@@ -9,7 +9,12 @@ GerryPy
     <div class="container">
       <div class="jumbotron">
         <h1>GerryPy</h1>
-        <h2>About us:</h2>
+        <div class="desc">
+            <h2>About GerryPy</h2>
+            <img src="{{request.static_url('gerrypy:static/gerrypie.png')}}" alt="gerrypie_pic">
+            <p class="profiledesc">{{ gerrypydesc }}</p>
+        </div>
+        <h2>About Us</h2>
         <div class="person">
             <h3>Julien</h3>
             <img class="profilepic" src="{{request.static_url('gerrypy:static/profilepics/julienpic.png')}}" alt="julien_profile_pic">
