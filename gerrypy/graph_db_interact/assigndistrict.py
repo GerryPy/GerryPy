@@ -9,6 +9,7 @@ from gerrypy.models.mymodel import Tract, District
 
 def assign_district(request, graph):
     """Assign a district ID to a single row in tract table."""
+    request.dbsession.execute('select * from reset_district();')
     for tract in nx.nodes(graph):
         tract_row = request.dbsession.query(Tract).get(tract.gid)
         tract_row.districtid = tract.districtid
