@@ -7,7 +7,7 @@ from gerrypy.models.mymodel import Tract, Edge
 import networkx as nx
 
 
-TRACTGRAPH = None
+# TRACTGRAPH = None
 
 
 def fill_graph(request):
@@ -15,7 +15,6 @@ def fill_graph(request):
     graph = nx.Graph()
     tracts = request.dbsession.query(Tract).all()  # get all tracts from db
     edges = request.dbsession.query(Edge).all()  # get all edges from db
-
     for tract in tracts:
         graph.add_node(tract)
     for edge in edges:
@@ -35,7 +34,7 @@ class OccupiedDist(object):
     properties accordingly
     """
 
-    def __init__(self, districtID, tracts=None, graph=TRACTGRAPH):
+    def __init__(self, districtID, state_graph, tracts=None):
         """."""
         self.nodes = nx.Graph()
         self.perimeter = []
@@ -45,37 +44,37 @@ class OccupiedDist(object):
         if tracts:
             try:
                 for tract in tracts:
-                    self.add_node(tract, graph)
+                    self.add_node(tract, state_graph)
             except TypeError:
                 raise TypeError('Tracts must be iterable.')
 
-    def add_node(self, node, graph):
+    def add_node(self, node, state_graph):
         """Add node to nodes and updates district properties."""
         node.districtid = self.districtID
         self.nodes.add_node(node)
-        for edge in graph.neighbors(node):
+        for edge in state_graph.neighbors(node):
             if edge in self.nodes.nodes():
                 self.nodes.add_edge(edge, node)
         self.population += node.tract_pop
         self.area += node.shape_area
         if node in self.perimeter:
             self.perimeter.remove(node)
-        neighbors = graph.neighbors(node)
+        neighbors = state_graph.neighbors(node)
         for neighbor in neighbors:
             if neighbor not in self.nodes.nodes() and neighbor not in self.perimeter:
                 self.perimeter.append(neighbor)
 
-    def rem_node(self, node, graph):
+    def rem_node(self, node, state_graph):
         """Remove node from nodes and updates district properties."""
         self.population -= node.tract_pop
         self.nodes.remove_node(node)
         self.area -= node.shape_area
-        neighbors = graph.neighbors(node)
+        neighbors = state_graph.neighbors(node)
         to_perimeter = False
         for neighbor in neighbors:
             takeout = True
             if neighbor in self.perimeter:
-                neighborneighbors = graph.neighbors(neighbor)
+                neighborneighbors = state_graph.neighbors(neighbor)
                 for neighborneighbor in neighborneighbors:
                     if neighborneighbor in self.nodes.nodes():
                         takeout = False
@@ -97,7 +96,7 @@ class UnoccupiedDist(OccupiedDist):
     properties accordingly
     """
 
-    def __init__(self, districtID, tracts=None, graph=TRACTGRAPH):
+    def __init__(self, districtID, state_graph, tracts=None):
         """."""
         self.nodes = nx.Graph()
         self.perimeter = []
@@ -107,25 +106,25 @@ class UnoccupiedDist(OccupiedDist):
         if tracts:
             try:
                 for tract in tracts:
-                    self.add_node(tract, graph)
+                    self.add_node(tract, state_graph)
             except TypeError:
                 raise TypeError('Tracts must be iterable.')
 
-    def add_node(self, node, graph):
+    def add_node(self, node, state_graph):
         """Add node to nodes and updates district properties accordingly."""
         node.districtid = None
         self.nodes.add_node(node)
-        for neighbor in graph.neighbors(node):
+        for neighbor in state_graph.neighbors(node):
             if neighbor in self.nodes:
                 self.nodes.add_edge(neighbor, node)
         self.population += node.tract_pop
         self.area += node.shape_area
-        neighbors = graph.neighbors(node)
+        neighbors = state_graph.neighbors(node)
         to_add = False
         for neighbor in neighbors:
             takeout = True
             if neighbor in self.perimeter:
-                neighborneighbors = graph.neighbors(neighbor)
+                neighborneighbors = state_graph.neighbors(neighbor)
                 for neighborneighbor in neighborneighbors:
                     if neighborneighbor not in self.nodes:
                         takeout = False
@@ -136,17 +135,17 @@ class UnoccupiedDist(OccupiedDist):
         if to_add:
             self.perimeter.append(node)
 
-    def rem_node(self, node, graph):
+    def rem_node(self, node, state_graph):
         """Remove node from nodes and updates district properties accordingly."""
-        self.nodes.remove_node(node)
         self.population -= node.tract_pop
         self.area -= node.shape_area
         if node in self.perimeter:
             self.perimeter.remove(node)
-        neighbors = graph.neighbors(node)
+        neighbors = self.nodes.neighbors(node) #state_graph.neighbors(node)
         for neighbor in neighbors:
-            if neighbor in self.nodes.nodes() and neighbor not in self.perimeter:
+            if neighbor not in self.perimeter:
                 self.perimeter.append(neighbor)
+        self.nodes.remove_node(node)
 
 
 class State(object):
@@ -165,10 +164,10 @@ class State(object):
         self.population = 0
         self.area = 0
         self.num_dst = num_dst
-        self.graph = fill_graph(request)
-        landmass = nx.connected_components(self.graph)
+        self.state_graph = fill_graph(request)
+        landmass = nx.connected_components(self.state_graph)
         for island in landmass:
-            unoc = UnoccupiedDist(None, tracts=island, graph=self.graph)
+            unoc = UnoccupiedDist(None, self.state_graph, tracts=island)
             for tract in unoc.nodes.nodes():
                 if tract.isborder == 1:
                     unoc.perimeter.append(tract)
@@ -189,23 +188,23 @@ class State(object):
                 rem_pop += unoc.population
             rem_dist = self.num_dst - len(self.districts)
             tgt_population = rem_pop / rem_dist
-            self.build_district(tgt_population, num + 1, self.graph)
+            self.build_district(tgt_population, num + 1)
 
-        assign_district(request, self.graph)
+        assign_district(request, self.state_graph)
         populate_district_table(request, self)
         if self.unoccupied:
             return False
         return True
 
-    def build_district(self, tgt_population, dist_num, graph=TRACTGRAPH):
+    def build_district(self, tgt_population, dist_num):
         """Create a new district stemming from the start node with a given population."""
         building = True
-        dst = OccupiedDist(dist_num)
+        dst = OccupiedDist(dist_num, self.state_graph)
         self.districts.append(dst)
-        start = self.find_start(graph)
-        self.swap(dst, start, graph)
+        start = self.find_start()
+        self.swap(dst, start)
         while building:
-            new_tract = self.select_next(dst, graph)
+            new_tract = self.select_next(dst)
             if new_tract is None:
                 for unoc in self.unoccupied:
                     if not len(unoc.nodes.nodes()):
@@ -215,8 +214,8 @@ class State(object):
             if abs(high_pop - tgt_population) > abs(dst.population - tgt_population):
                 break
             else:
-                unoc_dst = self.swap(dst, new_tract, graph)
-                neighbors = graph.neighbors(new_tract)
+                unoc_dst = self.swap(dst, new_tract)
+                neighbors = self.state_graph.neighbors(new_tract)
                 unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in unoc_dst.nodes]
                 if len(unassigned_neighbors) > 1:
                     for i in range(len(unassigned_neighbors)):
@@ -225,29 +224,29 @@ class State(object):
                             unassigned_neighbors[i],
                             unassigned_neighbors[i - 1]
                         ):
-                            dst.rem_node(new_tract, graph)
-                            unoc_dst.add_node(new_tract, graph)
+                            dst.rem_node(new_tract, self.state_graph)
+                            unoc_dst.add_node(new_tract, self.state_graph)
                             building = False
+                            # pass
 
-
-    def swap(self, dst, new_tract, graph):
+    def swap(self, dst, new_tract):
         """Exchange tract from unoccupied district to district."""
         unoc_dst = None
         for island in self.unoccupied:
             if new_tract in island.perimeter:
                 unoc_dst = island
-        unoc_dst.rem_node(new_tract, graph)
-        dst.add_node(new_tract, graph)
+        unoc_dst.rem_node(new_tract, self.state_graph)
+        dst.add_node(new_tract, self.state_graph)
         return unoc_dst
 
-    def select_next(self, dst, graph=TRACTGRAPH):
+    def select_next(self, dst):
         """Choose the next best tract to add to growing district."""
         best_count = 0
         best = None
         for perimeter_tract in dst.perimeter:
             if perimeter_tract.districtid is None:
                 count = 0
-                for neighbor in graph.neighbors(perimeter_tract):
+                for neighbor in self.state_graph.neighbors(perimeter_tract):
                     if neighbor.districtid == dst.districtID:
                         count += 1
                 if count > best_count:
@@ -255,7 +254,7 @@ class State(object):
                     best = perimeter_tract
         return best
 
-    def find_start(self, graph=TRACTGRAPH):
+    def find_start(self):
         """
         Choose best starting tract for a new district.
         Based on number of bordering districts.
@@ -264,7 +263,7 @@ class State(object):
         best = None
         for tract in self.unoccupied[0].perimeter:
             unique_dists = set()
-            for neighbor in graph.neighbors(tract):
+            for neighbor in self.state_graph.neighbors(tract):
                 for dst in self.districts:
                     if neighbor in dst.nodes.nodes():
                         unique_dists.add(dst)

@@ -14,7 +14,7 @@ def home_view(request):
 def map_view(request):
     if request.GET:
         # Do all the stuff
-        num_dst = 7
+        num_dst = 100
         state = State(request, num_dst)
         state.fill_state(request)
         with open('gerrypy/views/geo.json', 'w') as the_file:
@@ -30,11 +30,11 @@ def build_JSON(request):
     # query = request.dbsession.query(Tract.geom.ST_AsGeoJSON()).all()
     geojson_queries = request.dbsession.query(DistrictView.geom.ST_AsGeoJSON()).all()
     properties = request.dbsession.query(DistrictView).all()
-    colors = ['blue', 'red', 'yellow', 'purple', 'orange', 'green', 'coral']
+    colors = ['blue', 'red', 'yellow', 'purple', 'orange', 'green', 'black']
 
     for idx, block in enumerate(properties):
         json_string += '{' + '"type": "Feature", "properties": '
         json_string += '{'
-        json_string += '"id": {}, "area": {}, "population": {}, "color": "{}"'.format(str(block.districtid), str(block.area), str(block.population), str(colors[idx])) + '}'
+        json_string += '"id": {}, "area": {}, "population": {}, "color": "{}"'.format(str(block.districtid), str(block.area), str(block.population), str(colors[idx % 7])) + '}'
         json_string += ', "geometry": {}'.format(geojson_queries[idx][0]) + '}' + ','
     return json_string[:-1] + ']}'
