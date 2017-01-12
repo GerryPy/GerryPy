@@ -225,10 +225,10 @@ class State(object):
                             unassigned_neighbors[i],
                             unassigned_neighbors[i - 1]
                         ):
-                            dst.rem_node(new_tract, graph)
-                            unoc_dst.add_node(new_tract, graph)
-                            building = False
-
+                            # dst.rem_node(new_tract, graph)
+                            # unoc_dst.add_node(new_tract, graph)
+                            # building = False
+                            pass
 
     def swap(self, dst, new_tract, graph):
         """Exchange tract from unoccupied district to district."""
