@@ -162,6 +162,7 @@ class State(object):
 
     def __init__(self, request, num_dst):
         """Build unoccupied district(s) for entire state."""
+        self.request = request
         self.unoccupied = []
         self.districts = []
         self.population = 0
@@ -190,6 +191,9 @@ class State(object):
             rem_dist = self.num_dst - len(self.districts)
             tgt_population = rem_pop / rem_dist
             self.build_district(tgt_population, num + 1, self.graph)
+
+        from graph_db_interact.assigndistrict import assign_district
+        assign_district(self.request, self.graph)
         if self.unoccupied:
             return False
         return True
