@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Contains objects to pull tract information from database,
 compute new congressional districts,
@@ -156,7 +155,7 @@ class State(object):
     build_district(self, start, population):
     creates a new district stemming from the start node with a given population
 
-    fill_state(self): continues to build districts until all unoccupied tracts are claimed
+    fill_state(self, request): continues to build districts until all unoccupied tracts are claimed
     """
 
 
@@ -181,15 +180,24 @@ class State(object):
 
         # construct target districts
 
-    def fill_state(self):
+    def fill_state(self, request):
         """Build districts until all unoccupied tracts are claimed."""
-        rem_pop = 0
-        for unoc in self.unoccupied:
-            rem_pop += unoc.population
-        rem_dist = self.num_dst - len(self.districts)
-        tgt_population = rem_pop / rem_dist
+        from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
+
         for num in range(self.num_dst):
+            rem_pop = 0
+            for unoc in self.unoccupied:
+                rem_pop += unoc.population
+            rem_dist = self.num_dst - len(self.districts)
+            tgt_population = rem_pop / rem_dist
             self.build_district(tgt_population, num + 1, self.graph)
+
+        assign_district(request, self)
+        populate_district_table(request, self)
+        if self.unoccupied:
+            return False
+        return True
+
 
     def build_district(self, tgt_population, dist_num, graph=TRACTGRAPH):
         """Create a new district stemming from the start node with a given population."""
@@ -201,6 +209,9 @@ class State(object):
         while building:
             new_tract = self.select_next(dst, graph)
             if new_tract is None:
+                for unoc in self.unoccupied:
+                    if not len(unoc.nodes.nodes()):
+                        self.unoccupied.remove(unoc)
                 break
             high_pop = (new_tract.tract_pop + dst.population)
             if abs(high_pop - tgt_population) > abs(dst.population - tgt_population):
@@ -220,6 +231,7 @@ class State(object):
                             unoc_dst.add_node(new_tract, graph)
                             building = False
 
+
     def swap(self, dst, new_tract, graph):
         """Exchange tract from unoccupied district to district."""
         unoc_dst = None
@@ -235,8 +247,6 @@ class State(object):
         best_count = 0
         best = None
         for perimeter_tract in dst.perimeter:
-            if perimeter_tract in dst.nodes:
-                import pdb; pdb.set_trace()
             if perimeter_tract.districtid is None:
                 count = 0
                 for neighbor in graph.neighbors(perimeter_tract):

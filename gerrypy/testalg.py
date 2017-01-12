@@ -5,6 +5,7 @@ from pyramid import testing
 from gerrypy.models.mymodel import Tract
 from gerrypy.models.meta import Base
 from gerrypy.test_db import db_session, configuration
+import geoalchemy2
 
 
 @pytest.fixture
@@ -26,6 +27,15 @@ def fill_colorado(dummy_request, filled_graph):
     from gerrypy.scripts.fish_scales import State
     colorado = State(dummy_request, 1)
     colorado.build_district(colorado.population, 1, filled_graph)
+    return colorado
+
+
+@pytest.fixture
+def fill_colorado_multiple_districts(dummy_request, filled_graph):
+    """Build a state with a single district."""
+    from gerrypy.scripts.fish_scales import State
+    colorado = State(dummy_request, 7)
+    colorado.fill_state(dummy_request)
     return colorado
 
 
@@ -113,6 +123,13 @@ def test_unoc_constructor_population():
     from gerrypy.scripts.fish_scales import UnoccupiedDist
     unoc = UnoccupiedDist(None)
     assert unoc.population == 0
+
+
+def test_district_add_invalid_tract_unoccupied():
+    """Test that adding an invalid tract raises error."""
+    from gerrypy.scripts.fish_scales import UnoccupiedDist
+    with pytest.raises(TypeError):
+        dist = UnoccupiedDist(1, 34)
 
 
 def test_district_add_node(filled_graph):
@@ -431,6 +448,30 @@ def test_added_node_not_in_unoc_perimeter(start_district, filled_graph):
     new_node = dst.perimeter[0]
     state.swap(dst, new_node, filled_graph)
     assert new_node not in state.unoccupied[0].perimeter
+
+
+def test_build_state_update_pop(fill_colorado_multiple_districts):
+    """Test that after filling the state, no unassigned pop remains."""
+    assert fill_colorado_multiple_districts
+
+
+# This test is commented out until we start building completely filled states.
+# def test_build_state_no_unoccupied(fill_colorado_multiple_districts, filled_graph):
+#     """Test that after filling the state, no unoccupied tracts remain."""
+#     assert fill_colorado_multiple_districts.unoccupied == []
+
+
+def test_build_state_right_number_districts(fill_colorado_multiple_districts):
+    """Test that filling the state creates the correct number of districts."""
+    from gerrypy.scripts.fish_scales import State
+    assert len(fill_colorado_multiple_districts.districts) == 7
+
+
+# def test_build_State_runs_build_district(fill_colorado_multiple_districts):
+#     from gerrypy.scripts.fish_scales import State
+#     State.fill_state()
+
+
 
 # @pytest.mark.parametrize("bad_node", BAD_NODES)
 # def test_district_add_node_error(bad_node):
