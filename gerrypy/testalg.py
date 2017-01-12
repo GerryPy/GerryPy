@@ -34,7 +34,7 @@ def fill_colorado_multiple_districts(dummy_request, filled_graph):
     """Build a state with a single district."""
     from gerrypy.scripts.fish_scales import State
     colorado = State(dummy_request, 7)
-    colorado.fill_state()
+    colorado.fill_state(dummy_request)
     return colorado
 
 

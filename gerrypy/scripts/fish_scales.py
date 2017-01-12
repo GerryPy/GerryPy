@@ -156,13 +156,12 @@ class State(object):
     build_district(self, start, population):
     creates a new district stemming from the start node with a given population
 
-    fill_state(self): continues to build districts until all unoccupied tracts are claimed
+    fill_state(self, request): continues to build districts until all unoccupied tracts are claimed
     """
 
 
     def __init__(self, request, num_dst):
         """Build unoccupied district(s) for entire state."""
-        self.request = request
         self.unoccupied = []
         self.districts = []
         self.population = 0
@@ -182,7 +181,7 @@ class State(object):
 
         # construct target districts
 
-    def fill_state(self):
+    def fill_state(self, request):
         """Build districts until all unoccupied tracts are claimed."""
         for num in range(self.num_dst):
             rem_pop = 0
@@ -193,8 +192,8 @@ class State(object):
             self.build_district(tgt_population, num + 1, self.graph)
 
         from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
-        assign_district(self.request, self.graph)
-        populate_district_table(self.request, self)
+        assign_district(request, self.graph)
+        populate_district_table(request, self)
         if self.unoccupied:
             return False
         return True
@@ -211,7 +210,7 @@ class State(object):
             new_tract = self.select_next(dst, graph)
             if new_tract is None:
                 for unoc in self.unoccupied:
-                    if not len(unoc):
+                    if not len(unoc.nodes.nodes()):
                         self.unoccupied.remove(unoc)
                 break
             high_pop = (new_tract.tract_pop + dst.population)
@@ -231,6 +230,7 @@ class State(object):
                             dst.rem_node(new_tract, graph)
                             unoc_dst.add_node(new_tract, graph)
                             building = False
+
 
     def swap(self, dst, new_tract, graph):
         """Exchange tract from unoccupied district to district."""

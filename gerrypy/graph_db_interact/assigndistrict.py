@@ -3,7 +3,7 @@ import networkx as nx
 from gerrypy.models.mymodel import Tract, District
 from sqlalchemy import func
 from sqlalchemy.sql import label
-from geoalchemy2.functions import ST_Union
+import geoalchemy2.functions
 
 
 def assign_district(request, graph):
