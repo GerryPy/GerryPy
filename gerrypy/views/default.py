@@ -14,7 +14,7 @@ def home_view(request):
 def map_view(request):
     if request.GET:
         # Do all the stuff
-        num_dst = 100
+        num_dst = 7
         state = State(request, num_dst)
         state.fill_state(request)
         with open('gerrypy/views/geo.json', 'w') as the_file:

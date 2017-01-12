@@ -202,7 +202,7 @@ class State(object):
         dst = OccupiedDist(dist_num, self.state_graph)
         self.districts.append(dst)
         start = self.find_start()
-        self.swap(dst, start)
+        self.swap(dst, start) #if state is full, this wont work
         while building:
             new_tract = self.select_next(dst)
             if new_tract is None:
@@ -216,7 +216,7 @@ class State(object):
             else:
                 unoc_dst = self.swap(dst, new_tract)
                 neighbors = self.state_graph.neighbors(new_tract)
-                unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in unoc_dst.nodes]
+                unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor.districtid is None]
                 if len(unassigned_neighbors) > 1:
                     for i in range(len(unassigned_neighbors)):
                         if not nx.has_path(
@@ -224,10 +224,24 @@ class State(object):
                             unassigned_neighbors[i],
                             unassigned_neighbors[i - 1]
                         ):
-                            dst.rem_node(new_tract, self.state_graph)
-                            unoc_dst.add_node(new_tract, self.state_graph)
-                            building = False
+                            # dst.rem_node(new_tract, self.state_graph)
+                            # unoc_dst.add_node(new_tract, self.state_graph)
+                            # building = False
                             # pass
+                            unoc_neighbors = self.split_unoccupied_dist(unoc_dst)
+                            highest_pop = 0
+                            biggest = None
+                            # import pdb; pdb.set_trace()
+                            for neigh in unoc_neighbors:
+                                if neigh.population > highest_pop:
+                                    biggest = neigh
+                                    highest_pop = neigh.population
+                            unoc_neighbors.remove(biggest)
+
+                            for neigh in unoc_neighbors:
+                                nodes_to_swap = neigh.nodes.nodes()
+                                for tract in nodes_to_swap:
+                                    self.swap(dst, tract)
 
     def swap(self, dst, new_tract):
         """Exchange tract from unoccupied district to district."""
@@ -272,15 +286,12 @@ class State(object):
                 best = tract
         return best
 
-    def split_unoccupied_dist(self, dist):
+    def split_unoccupied_dist(self, unoc_dst):
         """Remove unoccupied dist from State and adds contiguous unoccupied sub-districts."""
-        self.unoccupied.remove(dist)
-        new_iters = nx.connected_components(dist.nodes)
-        new_dists = []
-        for itr in new_iters:
-            new_dists.append(UnoccupiedDist(None, itr))
-        self.unoccupied.extend(new_dists)
-
-    # def shift_dist(self, dst):
-    #     """Move build district into the smallest bordering unoccupied district
-    #     until all bordering unoccupied district populations are divisible by target population."""
+        self.unoccupied.remove(unoc_dst)
+        index = len(self.unoccupied)
+        landmass = nx.connected_components(unoc_dst.nodes)
+        for island in landmass:
+            import pdb; pdb.set_trace()
+            self.unoccupied.append(UnoccupiedDist(None, self.state_graph, tracts=island))
+        return self.unoccupied[index:]
