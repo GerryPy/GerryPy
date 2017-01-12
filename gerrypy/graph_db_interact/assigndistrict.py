@@ -15,14 +15,6 @@ def assign_district(request, graph):
         tract_row.districtid = tract.districtid
 
 
-def assign_district(request, state):
-    """Assign a district ID to a single row in tract table."""
-    for district in state.districts:
-        for tract in district.nodes.nodes():
-            tract_row = request.dbsession.query(Tract).get(tract.gid)
-            tract_row.disrictid = tract.districtid
-
-
 def populate_district_table(request, state):
     """Insert distrcts into district."""
     request.dbsession.query(District).delete()

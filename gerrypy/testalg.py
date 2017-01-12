@@ -5,6 +5,7 @@ from pyramid import testing
 from gerrypy.models.mymodel import Tract
 from gerrypy.models.meta import Base
 from gerrypy.test_db import db_session, configuration
+import geoalchemy2
 
 
 @pytest.fixture
@@ -34,7 +35,7 @@ def fill_colorado_multiple_districts(dummy_request, filled_graph):
     """Build a state with a single district."""
     from gerrypy.scripts.fish_scales import State
     colorado = State(dummy_request, 7)
-    colorado.fill_state()
+    colorado.fill_state(dummy_request)
     return colorado
 
 
@@ -122,6 +123,13 @@ def test_unoc_constructor_population():
     from gerrypy.scripts.fish_scales import UnoccupiedDist
     unoc = UnoccupiedDist(None)
     assert unoc.population == 0
+
+
+def test_district_add_invalid_tract_unoccupied():
+    """Test that adding an invalid tract raises error."""
+    from gerrypy.scripts.fish_scales import UnoccupiedDist
+    with pytest.raises(TypeError):
+        dist = UnoccupiedDist(1, 34)
 
 
 def test_district_add_node(filled_graph):

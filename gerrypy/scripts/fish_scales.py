@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Contains objects to pull tract information from database,
 compute new congressional districts,
@@ -157,13 +156,12 @@ class State(object):
     build_district(self, start, population):
     creates a new district stemming from the start node with a given population
 
-    fill_state(self): continues to build districts until all unoccupied tracts are claimed
+    fill_state(self, request): continues to build districts until all unoccupied tracts are claimed
     """
 
 
     def __init__(self, request, num_dst):
         """Build unoccupied district(s) for entire state."""
-        self.request = request
         self.unoccupied = []
         self.districts = []
         self.population = 0
@@ -183,8 +181,10 @@ class State(object):
 
         # construct target districts
 
-    def fill_state(self):
+    def fill_state(self, request):
         """Build districts until all unoccupied tracts are claimed."""
+        from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
+
         for num in range(self.num_dst):
             rem_pop = 0
             for unoc in self.unoccupied:
@@ -193,9 +193,8 @@ class State(object):
             tgt_population = rem_pop / rem_dist
             self.build_district(tgt_population, num + 1, self.graph)
 
-        from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
-        assign_district(self.request, self)
-        populate_district_table(self.request, self)
+        assign_district(request, self)
+        populate_district_table(request, self)
         if self.unoccupied:
             return False
         return True
@@ -232,6 +231,7 @@ class State(object):
                             dst.rem_node(new_tract, graph)
                             unoc_dst.add_node(new_tract, graph)
                             building = False
+
 
     def swap(self, dst, new_tract, graph):
         """Exchange tract from unoccupied district to district."""
