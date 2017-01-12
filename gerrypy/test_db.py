@@ -107,7 +107,16 @@ def test_empty_district_nums(dummy_request, filled_graph):
     """Test that all districts have no district id before they're filled."""
     query = dummy_request.dbsession.query(Tract)
     no_d_id = query.filter(Tract.districtid == None).count()
-    assert no_d_id == 0
+    assert no_d_id == 1249
+
+
+def test_empty_district_nums_after_fill(dummy_request, filled_graph):
+    """Test that not all districts have no district id after they're filled."""
+    query = dummy_request.dbsession.query(Tract)
+    state = State(dummy_request, 1)
+    state.fill_state(dummy_request)
+    no_d_id = query.filter(Tract.districtid == None).count()
+    assert no_d_id < 1249
 
 
 # def test_assign_district_add_one_dist_id(dummy_request, filled_graph):
