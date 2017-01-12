@@ -113,7 +113,6 @@ class UnoccupiedDist(OccupiedDist):
 
     def add_node(self, node, graph):
         """Add node to nodes and updates district properties accordingly."""
-        print ('node added')
         node.districtid = None
         self.nodes.add_node(node)
         for neighbor in graph.neighbors(node):
@@ -159,7 +158,6 @@ class State(object):
     fill_state(self, request): continues to build districts until all unoccupied tracts are claimed
     """
 
-
     def __init__(self, request, num_dst):
         """Build unoccupied district(s) for entire state."""
         self.unoccupied = []
@@ -193,12 +191,11 @@ class State(object):
             tgt_population = rem_pop / rem_dist
             self.build_district(tgt_population, num + 1, self.graph)
 
-        assign_district(request, self)
+        assign_district(request, self.graph)
         populate_district_table(request, self)
         if self.unoccupied:
             return False
         return True
-
 
     def build_district(self, tgt_population, dist_num, graph=TRACTGRAPH):
         """Create a new district stemming from the start node with a given population."""
