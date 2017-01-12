@@ -76,20 +76,44 @@ GerryPy
             <br>
             <input type="submit">
         </form>
-        <div id="map">
-        </div>
+        <div id="map"></div>
+        <div id="info-box">?</div>
     </div>
     <script>
         var map;
         function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 7,
-          mapTypeId: 'terrain',
+          zoom: 6,
           center: {lat: 39, lng: -105}
         });
 
         {% if geojson %}
-        map.data.loadGeoJson('{{ geojson }}');
+        map.data.loadGeoJson("{{ request.static_url('gerrypy:views/geo.json') }}");
+
+        map.data.setStyle(function(feature) {
+          var color = feature.getProperty('color');
+          return ({
+            fillColor: color,
+            strokeColor: color,
+            strokeWeight: 1
+          });
+        });
+
+        map.data.addListener('click', function(event) {
+          document.getElementById('info-box').textContent =
+              'id: ' + event.feature.getProperty('id') +
+              '\narea: ' + event.feature.getProperty('area') +
+              '\npopulation: ' + event.feature.getProperty('population')
+        });
+
+        map.data.addListener('mouseover', function(event) {
+          map.data.revertStyle();
+          map.data.overrideStyle(event.feature, {strokeWeight: 2});
+        });
+
+        map.data.addListener('mouseout', function(event) {
+          map.data.revertStyle();
+        });
         {% endif %}
         }
     </script>
