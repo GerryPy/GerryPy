@@ -2,15 +2,11 @@ import os
 from pyramid.view import view_config
 from gerrypy.scripts.fish_scales import State
 from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
-import geoalchemy2
 from gerrypy.models.mymodel import Tract, District
+
 
 @view_config(route_name='home', renderer='../templates/home.jinja2')
 def home_view(request):
-    # state = State(request, 7)
-    # state.fill_state()
-    # assign_district(request, state)
-    # populate_district_table(request, state)
     return {'css': 'yes'}
 
 
@@ -19,10 +15,8 @@ def map_view(request):
     if request.GET:
         # Do all the stuff
         num_dst = 7
-        # state = State(request, num_dst)
-        # state.fill_state()
-        # assign_district(request, state)
-        # populate_district_table(request, state)
+        state = State(request, num_dst)
+        state.fill_state()
         with open('gerrypy/views/geo.json', 'w') as the_file:
             the_file.write(build_JSON(request))
         return {'geojson': 'ok'}

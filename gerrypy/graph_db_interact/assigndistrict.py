@@ -1,5 +1,5 @@
 """Use the graph to assign districts to tracts."""
-# import networkx as nx
+import networkx as nx
 from gerrypy.models.mymodel import Tract, District
 # from gerrypy.scripts.fish_scales import State
 # from sqlalchemy import func
@@ -7,12 +7,12 @@ from gerrypy.models.mymodel import Tract, District
 # from geoalchemy2.functions import ST_Union
 
 
-def assign_district(request, state):
+def assign_district(request, graph):
     """Assign a district ID to a single row in tract table."""
-    for district in state.districts:
-        for tract in district.nodes.nodes():
-            tract_row = request.dbsession.query(Tract).get(tract.gid)
-            tract_row.districtid = tract.districtid
+    request.dbsession.execute('select * from reset_district();')
+    for tract in nx.nodes(graph):
+        tract_row = request.dbsession.query(Tract).get(tract.gid)
+        tract_row.districtid = tract.districtid
 
 
 def populate_district_table(request, state):
