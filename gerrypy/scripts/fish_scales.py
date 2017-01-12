@@ -211,13 +211,13 @@ class State(object):
             if abs(high_pop - tgt_population) > abs(dst.population - tgt_population):
                 break
             else:
-                unoc_dst = self.swap(dst, new_tract)
+                self.swap(dst, new_tract)
                 neighbors = self.state_graph.neighbors(new_tract)
-                unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor.districtid is None]
+                unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in self.unoccupied[0].nodes]
                 if len(unassigned_neighbors) > 1:
                     for i in range(len(unassigned_neighbors)):
                         if not nx.has_path(
-                            unoc_dst.nodes,
+                            self.unoccupied[0].nodes,
                             unassigned_neighbors[i],
                             unassigned_neighbors[i - 1]
                         ):
@@ -225,30 +225,25 @@ class State(object):
                             # unoc_dst.add_node(new_tract, self.state_graph)
                             # building = False
                             # pass
-                            unoc_neighbors = [x for x in nx.connected_components(unoc_dst.nodes)]
+                            unoc_neighbors = [x for x in nx.connected_components(self.unoccupied[0].nodes)]
                             biggest = max(unoc_neighbors, key=lambda x: len(x))
-                            # for neigh in unoc_neighbors:
-                            #     if neigh.population > highest_pop:
-                            #         biggest = neigh
-                            #         highest_pop = neigh.population
                             unoc_neighbors.remove(biggest)
-                            import pdb; pdb.set_trace()
 
                             for neigh in unoc_neighbors:
                                 for tract in neigh:
                                     self.swap(dst, tract)
+                            break
+
 
     def swap(self, dst, new_tract):
         """Exchange tract from unoccupied district to district."""
-        unoc_dst = None
-        for island in self.unoccupied:
-            if new_tract in island.perimeter:
-                unoc_dst = island
-        if unoc_dst is not self.unoccupied[0]:
-            import pdb; pdb.set_trace()
-        unoc_dst.rem_node(new_tract, self.state_graph)
+        # unoc_dst = None
+        # for island in self.unoccupied:
+        #     if new_tract in island.perimeter:
+        #         unoc_dst = island
+        self.unoccupied[0].rem_node(new_tract, self.state_graph)
         dst.add_node(new_tract, self.state_graph)
-        return unoc_dst
+        # return unoc_dst
 
     def select_next(self, dst):
         """Choose the next best tract to add to growing district."""
