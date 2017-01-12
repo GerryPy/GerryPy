@@ -114,6 +114,7 @@ class UnoccupiedDist(OccupiedDist):
 
     def add_node(self, node, graph):
         """Add node to nodes and updates district properties accordingly."""
+        print ('node added')
         node.districtid = None
         self.nodes.add_node(node)
         for neighbor in graph.neighbors(node):
