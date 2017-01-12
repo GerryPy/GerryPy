@@ -241,6 +241,21 @@ def test_map_page_has_content(testapp):
     assert 'Create Districts for Colorado' in str(html)
 
 
+def test_map_page_has_title(testapp):
+    """Test that map page has a title."""
+    response = testapp.get('/map', status=200)
+    html = response.html
+    assert 'GerryPy' in str(html.findAll("title")[0])
+
+
+def test_map_page_has_json(testapp):
+    """Test that map page has a title."""
+    get_params = {'state': 'CO'}
+    response = testapp.get('/map', get_params, status=200)
+    import pdb; pdb.set_trace()
+    assert str(response) == "{'json': 'ok'}"
+
+
 
 # def test_for_home_link_in_detail(testapp):
 #     """Test home page link exists in detail page."""

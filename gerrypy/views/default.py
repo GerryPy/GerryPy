@@ -18,6 +18,7 @@ def map_view(request):
         state = State(request, num_dst)
         state.fill_state(request)
         with open('gerrypy/views/geo.json', 'w') as the_file:
+     #   with open('geo.json', 'w') as the_file:
             the_file.write(build_JSON(request))
         return {'geojson': 'ok'}
     return {}
