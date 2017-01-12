@@ -6,10 +6,10 @@ import geoalchemy2
 
 @view_config(route_name='home', renderer='../templates/home.jinja2')
 def home_view(request):
-    # state = State(request, 7)
-    # state.fill_state()
-    # assign_district(request, state)
-    # populate_district_table(request, state)
+    state = State(request, 7)
+    state.fill_state()
+    assign_district(request, state)
+    populate_district_table(request, state)
     return {'css':'yes'}
 
 

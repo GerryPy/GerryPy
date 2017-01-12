@@ -375,6 +375,7 @@ def test_state_build_district_population(fill_colorado):
     total_pop = fill_colorado.districts[0].population + fill_colorado.unoccupied[0].population
     assert fill_colorado.population == total_pop
 
+
 def test_state_build_district_area(fill_colorado):
     """Test that district area == state area when there is one district in the state."""
     assert fill_colorado.area == fill_colorado.districts[0].area + fill_colorado.unoccupied[0].area
@@ -387,6 +388,7 @@ def test_state_build_district_perimiter(fill_colorado):
         if tract in fill_colorado.districts[0].nodes.nodes():
             assertion = False
     assert assertion
+
 
 @pytest.fixture()
 def start_state(dummy_request):
