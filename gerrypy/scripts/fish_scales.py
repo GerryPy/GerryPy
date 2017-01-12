@@ -192,8 +192,9 @@ class State(object):
             tgt_population = rem_pop / rem_dist
             self.build_district(tgt_population, num + 1, self.graph)
 
-        from graph_db_interact.assigndistrict import assign_district
+        from graph_db_interact.assigndistrict import assign_district, populate_district_table
         assign_district(self.request, self.graph)
+        populate_district_table(self.request, self)
         if self.unoccupied:
             return False
         return True
