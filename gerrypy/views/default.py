@@ -2,7 +2,7 @@ import os
 from pyramid.view import view_config
 from gerrypy.scripts.fish_scales import State
 from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
-from gerrypy.models.mymodel import Tract, District
+from gerrypy.models.mymodel import Tract, District, DistrictView
 
 
 @view_config(route_name='home', renderer='../templates/home.jinja2')
@@ -28,8 +28,8 @@ def build_JSON(request):
     json_string = '{"type": "FeatureCollection","features": ['
 
     # query = request.dbsession.query(Tract.geom.ST_AsGeoJSON()).all()
-    geojson_queries = request.dbsession.query(District.geom.ST_AsGeoJSON()).all()
-    properties = request.dbsession.query(District).all()
+    geojson_queries = request.dbsession.query(DistrictView.geom.ST_AsGeoJSON()).all()
+    properties = request.dbsession.query(DistrictView).all()
     colors = ['blue', 'red', 'yellow', 'purple', 'orange', 'green', 'coral']
 
     for idx, block in enumerate(properties):

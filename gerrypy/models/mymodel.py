@@ -23,6 +23,16 @@ class District(Base):
     geom = Column(Geometry('MultiPolygon'))
 
 
+class DistrictView(Base):
+    """Model for each district built by the program."""
+    __tablename__ = 'vwdistrict'
+    districtid = Column(Integer, primary_key=True)
+    #district_number = Column(Integer)
+    area = Column(Float)
+    population = Column(Integer)
+    geom = Column(Geometry('MultiPolygon'))
+
+
 class Tract(Base):
     """Tract model in the db."""
     __tablename__ = 'colorado_tracts'
