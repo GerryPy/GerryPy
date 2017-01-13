@@ -9,10 +9,15 @@ from gerrypy.models.mymodel import Tract, District
 
 def assign_district(request, graph):
     """Assign a district ID to a single row in tract table."""
-    request.dbsession.execute('select * from reset_district();')
-    for tract in nx.nodes(graph):
+    # request.dbsession.execute('select * from reset_district();')
+    for tract in graph.nodes():
         tract_row = request.dbsession.query(Tract).get(tract.gid)
         tract_row.districtid = tract.districtid
+        request.dbsession.flush()
+    nones = request.dbsession.query(Tract).filter_by(districtid=None).count()
+    print(nones)
+    print(len(set(graph.nodes())))
+    # import pdb; pdb.set_trace()
 
 
 def populate_district_table(request, state):

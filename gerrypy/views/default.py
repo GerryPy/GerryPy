@@ -1,23 +1,26 @@
-import os
-import io
+"""Handle view requests."""
 from pyramid.view import view_config
 from gerrypy.scripts.fish_scales import State
-from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
-from gerrypy.models.mymodel import Tract, District, DistrictView
+from gerrypy.models.mymodel import DistrictView
 
 
 @view_config(route_name='home', renderer='../templates/home.jinja2')
 def home_view(request):
+    """Return css yes...for the home page."""
     return {'css': 'yes'}
 
 
 @view_config(route_name='map', renderer='../templates/map.jinja2')
 def map_view(request):
+    """If form submitted, generate districts and return map with geojson."""
     if request.GET:
-        # Do all the stuff
+        criteria = {
+            'county' : request.GET['countyweight'],
+            'compactness' : request.GET['compactweight']
+        }
         num_dst = 7
         state = State(request, num_dst)
-        state.fill_state(request)
+        state.fill_state(request, criteria)
         with open('gerrypy/views/geo.json', 'w') as the_file:
             the_file.write(build_JSON(request))
         return {'geojson': 'ok'}
@@ -26,17 +29,18 @@ def map_view(request):
 
 @view_config(route_name='about', renderer='../templates/about.jinja2')
 def about_view(request):
-    with io.open("gerrypy/static/profiledescs/averydesc.txt") as fial:
+    """Return info about gerrypy creator extraordinaires."""
+    with open("gerrypy/static/profiledescs/averydesc.txt") as fial:
         averydesc = fial.read()
-    with io.open("gerrypy/static/profiledescs/forddesc.txt") as fial:
+    with open("gerrypy/static/profiledescs/forddesc.txt") as fial:
         forddesc = fial.read()
-    with io.open("gerrypy/static/profiledescs/juliendesc.txt") as fial:
+    with open("gerrypy/static/profiledescs/juliendesc.txt") as fial:
         juliendesc = fial.read()
-    with io.open("gerrypy/static/profiledescs/patrickdesc.txt") as fial:
+    with open("gerrypy/static/profiledescs/patrickdesc.txt") as fial:
         patrickdesc = fial.read()
-    with io.open("gerrypy/static/profiledescs/jordandesc.txt") as fial:
+    with open("gerrypy/static/profiledescs/jordandesc.txt") as fial:
         jordandesc = fial.read()
-    with io.open("gerrypy/static/gerrypydesc.txt") as fial:
+    with open("gerrypy/static/gerrypydesc.txt") as fial:
         gerrypydesc = fial.read()
     return {
         "averydesc": averydesc,
@@ -58,6 +62,7 @@ def build_JSON(request):
     colors = ['blue', 'red', 'yellow', 'purple', 'orange', 'green', 'black']
 
     for idx, block in enumerate(properties):
+        print(len(geojson_queries[idx]))
         json_string += '{' + '"type": "Feature", "properties": '
         json_string += '{'
         json_string += '"id": {}, "area": {}, "population": {}, "color": "{}"'.format(str(block.districtid), str(block.area), str(block.population), str(colors[idx % 7])) + '}'

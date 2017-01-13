@@ -29,9 +29,10 @@
   <nav class="navbar navbar-default">
     <div class="container-fluid">
       <ul class="nav navbar-nav">
-        <li><a class="navbar-brand" href="{{ request.route_url('home') }}"></li>
+        <li><a class="navbar-brand" href="{{ request.route_url('home') }}">
           <img alt="GerryPy" src="{{request.static_url('gerrypy:static/gerrypie.png')}}">
-        </a>
+          {% block nav_title %}{% endblock %}
+        </a></li>
         <li class="navbar-right"><a href="{{ request.route_url('map') }}">Map</a></li>
         <li class="navbar-right"><a href="{{ request.route_url('about') }}">About</a></li>
       </ul>
