@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/GerryPy/GerryPy.svg?branch=master)](https://travis-ci.org/GerryPy/GerryPy)
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)
 [![License](https://img.shields.io/badge/license-MIT%20License-brightgreen.svg)](https://opensource.org/licenses/MIT)
 
