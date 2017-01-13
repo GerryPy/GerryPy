@@ -74,6 +74,7 @@ GerryPy
                     <option value='4'>4</option>
                     <option value='5'>5</option>
                 </select>
+                <br>
                 <label>Compactness Weight: </label>
                 <select name='compactweight'>
                     <option value='1'>1</option>
@@ -82,8 +83,9 @@ GerryPy
                     <option value='4'>4</option>
                     <option value='5'>5</option>
                 </select>
-            <br>
+            </div>
             <input type="submit" class="btn btn-danger" value="Generate Districts">
+            <br>
         </form>
         <div id="map"></div>
     </div>
@@ -93,6 +95,7 @@ GerryPy
         map = new google.maps.Map(document.getElementById('map'), {
           zoom: 7,
           center: {lat: 39, lng: -106},
+          streetViewControl: false,
           styles: [
               // {
               //   "featureType": "road",
