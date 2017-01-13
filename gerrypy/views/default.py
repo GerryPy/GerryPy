@@ -62,7 +62,6 @@ def build_JSON(request):
     colors = ['blue', 'red', 'yellow', 'purple', 'orange', 'green', 'black']
 
     for idx, block in enumerate(properties):
-        print(len(geojson_queries[idx]))
         json_string += '{' + '"type": "Feature", "properties": '
         json_string += '{'
         json_string += '"id": {}, "area": {}, "population": {}, "color": "{}"'.format(str(block.districtid), str(block.area), str(block.population), str(colors[idx % 7])) + '}'
