@@ -29,16 +29,23 @@
   <nav class="navbar navbar-default">
     <div class="container-fluid">
       <ul class="nav navbar-nav">
-        <li><a class="navbar-brand" href="{{ request.route_url('home') }}"></li>
+        <li><a class="navbar-brand" href="{{ request.route_url('home') }}">
           <img alt="GerryPy" src="{{request.static_url('gerrypy:static/gerrypie.png')}}">
-        </a>
+          {% block nav_title %}{% endblock %}
+        </a></li>
         <li class="navbar-right"><a href="{{ request.route_url('map') }}">Map</a></li>
+        <li class="navbar-right"><a href="{{ request.route_url('about') }}">About</a></li>
       </ul>
     </div><!-- /.container-fluid -->
   </nav>
   {% block body %}
     <p>No content</p>
   {% endblock %}
+  <footer class="navbar navbar-default">
+    <p class="disclaimer">
+    <strong>Disclaimer: We make no guarantee that this application is suitable for any particular purpose.</strong> GerryPy represents a week of work as a programming project for Codefellows coding boot camp. We made many compromises in order to meet the deadline. Census data has not been verified. Electoral district generation does not comply with all relevant laws and is not guaranteed to comply with any particular law. The code may not be generalizable to irregularly shaped states. Any use is strictly at the user's own risk. <strong>This application is provided as-is and intended only for personal recreational use.</strong> The authors of this application accept no liability or responsibility for the use or misuse of this software.
+    </p>
+  </footer>
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

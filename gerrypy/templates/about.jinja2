@@ -1,0 +1,48 @@
+{% extends "layout.jinja2" %}
+{% block css %}
+    <link href="{{ request.static_url('gerrypy:static/home.css') }}" rel="stylesheet">
+{% endblock %}
+{% block title %}
+GerryPy
+{% endblock %}
+{% block nav_title %}<span>GerryPy</span>{% endblock %}
+{% block body %}
+    <div class="container">
+      <div class="jumbotron">
+        <div class="desc">
+            <h2>About GerryPy</h2>
+            <img src="{{request.static_url('gerrypy:static/gerrypie.png')}}" alt="gerrypie_pic">
+            <p>{{ gerrypydesc }}</p>
+        </div>
+        <h2>About Us</h2>
+        <div class="person">
+            <h3>Julien</h3>
+            <img class="profilepic" src="{{request.static_url('gerrypy:static/profilepics/julienpic.jpg')}}" alt="julien_profile_pic">
+            <p class="profiledesc">{{ juliendesc }}</p>
+        </div>
+        <div class="person">
+            <h3>Ford</h3>
+            <img class="profilepic" src="{{request.static_url('gerrypy:static/profilepics/fordpic.jpg')}}" alt="ford_profile_pic">
+            <p class="profiledesc">{{ forddesc }}</p>
+        </div>
+        <div class="person">
+            <h3>Avery</h3>
+            <img class="profilepic" src="{{request.static_url('gerrypy:static/profilepics/averypic.jpeg')}}" alt="Avery_profile_pic">
+            <p class="profiledesc">{{ averydesc }}</p>
+        </div>
+        <div class="person">
+            <h3>Patrick</h3>
+            <img class="profilepic" src="{{request.static_url('gerrypy:static/profilepics/patrickpic.jpeg')}}" alt="patrick_profile_pic">
+            <p class="profiledesc">{{ patrickdesc }}</p>
+        </div>
+        <div class="person">
+            <h3>Jordan</h3>
+            <img class="profilepic" src="{{request.static_url('gerrypy:static/profilepics/jordanpic.jpg')}}" alt="jordan_profile_pic">
+            <p class="profiledesc">{{ jordandesc }}</p>
+        </div>
+        <hr style="color:black">
+        <p><a class="btn btn-primary btn-lg" href="{{ request.route_url('home') }}" role="button">Home</a></p>
+      </div>
+    </div>
+    </div>
+{% endblock %}

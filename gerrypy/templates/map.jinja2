@@ -2,10 +2,11 @@
 {% block title %}
 GerryPy
 {% endblock %}
+{% block nav_title %}<span>GerryPy</span>{% endblock %}
 {% block body %}
     <div class='container'>
-        <form id='mapform'>
-            <label>State:</label>
+        <form id='mapform' method='POST'>
+            {# <label>State:</label>
             <select name='state'>
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
@@ -72,20 +73,32 @@ GerryPy
                     <option value='3'>3</option>
                     <option value='4'>4</option>
                     <option value='5'>5</option>
-                </select>
-            </div>
-            <br>
-            <input type="submit">
+                </select> #}
+            {# <br> #}
+            <input type="submit" class="btn btn-danger" value="Generate Districts">
         </form>
         <div id="map"></div>
-        <div id="info-box">?</div>
     </div>
-    <script>
+    <script id='map-script' data-json={{ request.static_url('gerrypy:views/geo.json') }}>
         var map;
         function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 6,
-          center: {lat: 39, lng: -105}
+          zoom: 7,
+          center: {lat: 39, lng: -106},
+          styles: [
+              // {
+              //   "featureType": "road",
+              //   "stylers": [
+              //     { "visibility": "off" }
+              //   ]
+              // },
+              {
+                "featureType": "poi.park",
+                "stylers": [
+                  { "visibility": "off" }
+                ]
+              }
+          ]
         });
 
         {% if geojson %}
@@ -100,11 +113,26 @@ GerryPy
           });
         });
 
+        var contentString = '<div id="content">'+
+          '<h4 id="districtid"></h4>'+
+          '<h5 id="population"></h5>'+
+          '<h5 id="area"></h5>'+
+          '</div>';
+
+        var infowindow = new google.maps.InfoWindow({
+            content: contentString
+        });
+
+
         map.data.addListener('click', function(event) {
-          document.getElementById('info-box').textContent =
-              'id: ' + event.feature.getProperty('id') +
-              '\narea: ' + event.feature.getProperty('area') +
-              '\npopulation: ' + event.feature.getProperty('population')
+            var latitude = event.latLng.lat();
+            var longitude = event.latLng.lng();
+            infowindow.setPosition({lat: latitude, lng: longitude})
+            infowindow.open(map);
+            var $info = $('#content')
+            $info.find('#districtid').text('District no. ' + event.feature.getProperty('id'))
+            $info.find('#population').text('Population: ' + event.feature.getProperty('population').toLocaleString())
+            $info.find('#area').html('Area: ' + (event.feature.getProperty('area') * 10000).toFixed(2) + ' km' + '2'.sup())
         });
 
         map.data.addListener('mouseover', function(event) {
