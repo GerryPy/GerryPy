@@ -234,7 +234,6 @@ class State(object):
                                     self.swap(dst, tract)
                             break
 
-
     def swap(self, dst, new_tract):
         """Exchange tract from unoccupied district to district."""
         # unoc_dst = None
