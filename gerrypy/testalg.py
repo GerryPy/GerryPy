@@ -493,7 +493,6 @@ def test_build_state_update_pop(fill_colorado_multiple_districts):
     assert fill_colorado_multiple_districts
 
 
-# This test is commented out until we start building completely filled states.
 def test_build_state_no_unoccupied(fill_colorado_multiple_districts, filled_graph):
     """Test that after filling the state, no unoccupied tracts remain."""
     assert fill_colorado_multiple_districts.unoccupied == []
