@@ -4,6 +4,8 @@ GerryPy
 {% endblock %}
 {% block body %}
     <div class='container'>
+    <h2>GerryPy</h2>
+    <h3>Create Districts for Colorado</h3>
         <form>
             <label>State:</label>
             <select name='state'>
@@ -77,9 +79,9 @@ GerryPy
             <input type="submit">
         </form>
         <div id="map"></div>
-        <div id="info-box"></div>
+        <div id="info-box">?</div>
     </div>
-    <script>
+    <script id='map-script' data-json={{ request.static_url('gerrypy:views/geo.json') }}>
         var map;
         function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
