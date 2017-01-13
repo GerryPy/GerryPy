@@ -93,3 +93,6 @@ test_py2
 
 # Rope project settings
 .ropeproject
+
+# Geo.json
+views/geo.json

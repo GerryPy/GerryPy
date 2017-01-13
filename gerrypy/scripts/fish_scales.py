@@ -189,6 +189,7 @@ class State(object):
 
         assign_district(request, self.state_graph)
         populate_district_table(request, self)
+        # self.balloon()
         if self.unoccupied:
             return False
         return True
@@ -233,6 +234,26 @@ class State(object):
                                 for tract in neigh:
                                     self.swap(dst, tract)
                             break
+
+    # def balloon(self):
+    #     """Consume leftover unoccupied districts."""
+    #     tracts = 0
+    #     for dst in self.districts:
+    #         tracts += len(dst.nodes)
+    #     print(tracts)
+    #     ign = []
+    #     while len(ign) < self.num_dst:
+    #         for i in range(self.num_dst):
+    #             if i not in ign:
+    #                 next_tract = self.select_next(self.districts[i])
+    #                 if next_tract:
+    #                     self.swap(self.districts[i], next_tract)
+    #                 else:
+    #                     ign.append(i)
+                        # for tract in self.districts[i].perimeter:
+                        #     if tract.districtid is None:
+                        #         print("FAILURE")
+                        # import pdb; pdb.set_trace()
 
     def swap(self, dst, new_tract):
         """Exchange tract from unoccupied district to district."""
