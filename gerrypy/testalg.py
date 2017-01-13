@@ -428,13 +428,20 @@ def start_district(start_state, filled_graph):
     return node, dst, start_state
 
 
-def test_swap_returns_correct_unoc_dist(start_district, fill_colorado, filled_graph):
-    """Test swap from unoc to oc returns the correct unoc district."""
-    import pdb; pdb.set_trace()
+def test_swap_moves_node(start_district, fill_colorado, filled_graph):
+    """Test swap from unoc to oc reassigns node."""
     start_node, dst, state = start_district
     neighbors = filled_graph.neighbors(start_node)
     state.swap(dst, neighbors[0])
     assert neighbors[0] in dst.nodes
+
+
+def test_swap_removes_node(start_district, fill_colorado, filled_graph):
+    """Test swap from unoc to oc removes node from unoc."""
+    start_node, dst, state = start_district
+    neighbors = filled_graph.neighbors(start_node)
+    state.swap(dst, neighbors[0])
+    assert neighbors[0] not in state.unoccupied
 
 
 def test_oc_nieghs_unoc_perim_same(start_district, filled_graph):
@@ -490,29 +497,29 @@ def test_build_state_right_number_districts(fill_colorado_multiple_districts):
     assert len(fill_colorado_multiple_districts.districts) == 7
 
 
-def test_build_State_runs_build_district(fill_colorado_multiple_districts):
-    from gerrypy.scripts.fish_scales import State
-    State.fill_state()
+# def test_build_State_runs_build_district(fill_colorado_multiple_districts):
+#     from gerrypy.scripts.fish_scales import State
+#     State.fill_state()
 
 
 
-@pytest.mark.parametrize("bad_node", BAD_NODES)
-def test_district_add_node_error(bad_node):
-    """Tests that district add_node method raises an error when a non-node object is put into it."""
-    from gerrypy.scripts.fish_scales import District
-    dist = District()
-    with pytest.raises(ValueError):
-        dist.add_node(bad_node)
+# @pytest.mark.parametrize("bad_node", BAD_NODES)
+# def test_district_add_node_error(bad_node):
+#     """Tests that district add_node method raises an error when a non-node object is put into it."""
+#     from gerrypy.scripts.fish_scales import District
+#     dist = District()
+#     with pytest.raises(ValueError):
+#         dist.add_node(bad_node)
 
 
-def test_district_rem_node(sample_state):
-    """Tests that district rem_node properly removes a node from nodes."""
-    from gerrypy.scripts.fish_scales import District
-    dist = OccupiedDist()
-    for node in sample_state:
-        dist.add_node(node)
-    assert (
-        dist.nodes == sample_state and
-        dist.perimeter == [] and
-        dist.population == 10
-    )
+# def test_district_rem_node(sample_state):
+#     """Tests that district rem_node properly removes a node from nodes."""
+#     from gerrypy.scripts.fish_scales import District
+#     dist = OccupiedDist()
+#     for node in sample_state:
+#         dist.add_node(node)
+#     assert (
+#         dist.nodes == sample_state and
+#         dist.perimeter == [] and
+#         dist.population == 10
+#     )
