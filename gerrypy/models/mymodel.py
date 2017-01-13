@@ -42,6 +42,7 @@ class Tract(Base):
     tract_pop = Column(Integer)
     geom = Column(Geometry('MultiPolygon'))
     isborder = Column(Integer)
+    county = Column(Integer)
 
 
 class Edge(Base):

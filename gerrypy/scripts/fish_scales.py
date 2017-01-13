@@ -175,7 +175,7 @@ class State(object):
 
         # construct target districts
 
-    def fill_state(self, request):
+    def fill_state(self, request, criteria):
         """Build districts until all unoccupied tracts are claimed."""
         from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
 
@@ -185,7 +185,7 @@ class State(object):
                 rem_pop += unoc.population
             rem_dist = self.num_dst - len(self.districts)
             tgt_population = rem_pop / rem_dist
-            self.build_district(tgt_population, num + 1)
+            self.build_district(tgt_population, num + 1, criteria)
 
         if len(self.state_graph) != 1249:
             print('blahhh')
@@ -195,7 +195,7 @@ class State(object):
             return False
         return True
 
-    def build_district(self, tgt_population, dist_num):
+    def build_district(self, tgt_population, dist_num, criteria):
         """Create a new district stemming from the start node with a given population."""
         building = True
         dst = OccupiedDist(dist_num, self.state_graph)
@@ -203,7 +203,7 @@ class State(object):
         start = self.find_start()
         self.swap(dst, start) #if state is full, this wont work
         while building:
-            new_tract = self.select_next(dst)
+            new_tract = self.select_next(dst, criteria)
             if new_tract is None:
                 for unoc in self.unoccupied:
                     if not len(unoc.nodes.nodes()):
@@ -246,9 +246,9 @@ class State(object):
         dst.add_node(new_tract, self.state_graph)
         # return unoc_dst
 
-    def select_next(self, dst):
+    def select_next(self, dst, criteria):
         """Choose the next best tract to add to growing district."""
-        best_count = 0
+        best_rating = 0
         best = None
         for perimeter_tract in dst.perimeter:
             if perimeter_tract.districtid is None:
@@ -256,8 +256,15 @@ class State(object):
                 for neighbor in self.state_graph.neighbors(perimeter_tract):
                     if neighbor.districtid == dst.districtID:
                         count += 1
-                if count > best_count:
-                    best_count = count
+                counties = set()
+                for node in dst.nodes:
+                    counties.add(node.county)
+                same_county = 0
+                if perimeter_tract.county in counties:
+                    same_county = 1
+                rating = count * int(criteria['compactness']) + same_county * int(criteria['county'])
+                if rating > best_rating:
+                    best_rating = rating
                     best = perimeter_tract
         return best
 
