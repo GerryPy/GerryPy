@@ -11,6 +11,7 @@ import networkx as nx
 from geoalchemy2 import Geometry
 from gerrypy.views.default import build_JSON
 
+
 @pytest.fixture(scope="session")
 def configuration(request):
     """Set up a Configurator instance.
@@ -73,17 +74,17 @@ def cleared_districts(db_session):
 
 
 @pytest.fixture
-def sample_state(dummy_request):
+def sample_state(dummy_request, filled_graph):
     """Create a sample state with some district data."""
-    test_district1 = OccupiedDist('placeholder')
+    test_district1 = OccupiedDist('placeholder', filled_graph)
     test_district1.population = 500
     test_district1.area = 2500
     test_district1.districtID = 500
-    test_district2 = OccupiedDist('placeholder')
+    test_district2 = OccupiedDist('placeholder', filled_graph)
     test_district2.population = 53043
     test_district2.area = 250420
     test_district2.districtID = 600
-    test_district3 = OccupiedDist('placeholder')
+    test_district3 = OccupiedDist('placeholder', filled_graph)
     test_district3.population = 123
     test_district3.area = 456
     test_district3.districtID = 789
@@ -121,8 +122,12 @@ def test_empty_district_nums(dummy_request, cleared_districts):
 def test_empty_district_nums_after_fill(dummy_request, filled_graph):
     """Test that not all districts have no district id after they're filled."""
     query = dummy_request.dbsession.query(Tract)
+    criteria = {
+        'county': 1,
+        'compactness': 1
+    }
     state = State(dummy_request, 1)
-    state.fill_state(dummy_request)
+    state.fill_state(dummy_request, criteria)
     no_d_id = query.filter(Tract.districtid == None).count()
     assert no_d_id < 1249
 
@@ -254,7 +259,7 @@ def test_map_page_has_content(testapp):
     """Test that map page has expected string."""
     response = testapp.get('/map', status=200)
     html = response.html
-    assert 'Create Districts for Colorado' in str(html)
+    assert 'Generate Districts' in str(html)
 
 
 def test_map_page_has_title(testapp):
@@ -273,14 +278,15 @@ def test_map_page_has_map(testapp):
 
 def test_map_page_loads_json(testapp):
     """Test that map page loads json after get request."""
-    get_params = {'state': 'CO'}
+    get_params = {'countyweight': 1, 'compactweight': 1}
+
     response = testapp.get('/map', get_params, status=200)
     assert 'map.data.loadGeoJson' in str(response)
 
 
 def test_map_page_loads_correct_json(testapp):
     """Test that map page loads json after get request."""
-    get_params = {'state': 'CO'}
+    get_params = {'countyweight': 1, 'compactweight': 1}
     response = testapp.get('/map', get_params, status=200)
     json_url = response.html.find('script').attrs['data-json']
     json_response = testapp.get(json_url, status=200).text

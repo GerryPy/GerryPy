@@ -1,5 +1,3 @@
-import os
-
 from setuptools import setup, find_packages
 
 requires = [
@@ -38,10 +36,9 @@ setup(name='GerryPy',
               'Patrick Saunders',
               'Avery Pratt',
               'Ford Fowler'],
-      author_email=['jo@gmail.com',
-                    'ju@gmail.com',
-                    'pa@gmail.com',
-                    'av@gmail.com',
+      author_email=['jordan.schatzman@outlook.com',
+                    'apratt91@gmail.com',
+                    'julienawilson@gmail.com',
                     'fordjfowler@gmail.com'],
       url='http://gerrypy.herokuapp.com/',
       keywords='web wsgi bfg pylons pyramid',

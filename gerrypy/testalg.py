@@ -25,8 +25,12 @@ def filled_graph(dummy_request):
 def fill_colorado(dummy_request, filled_graph):
     """Build a state with a single district."""
     from gerrypy.scripts.fish_scales import State
+    criteria = {
+        'county': 1,
+        'compactness': 1
+    }
     colorado = State(dummy_request, 1)
-    colorado.fill_state(dummy_request)
+    colorado.fill_state(dummy_request, criteria)
     return colorado
 
 
@@ -34,8 +38,12 @@ def fill_colorado(dummy_request, filled_graph):
 def fill_colorado_multiple_districts(dummy_request, filled_graph):
     """Build a state with a single district."""
     from gerrypy.scripts.fish_scales import State
+    criteria = {
+        'county': 1,
+        'compactness': 1
+    }
     colorado = State(dummy_request, 7)
-    colorado.fill_state(dummy_request)
+    colorado.fill_state(dummy_request, criteria)
     return colorado
 
 
@@ -485,10 +493,9 @@ def test_build_state_update_pop(fill_colorado_multiple_districts):
     assert fill_colorado_multiple_districts
 
 
-# This test is commented out until we start building completely filled states.
-# def test_build_state_no_unoccupied(fill_colorado_multiple_districts, filled_graph):
-#     """Test that after filling the state, no unoccupied tracts remain."""
-#     assert fill_colorado_multiple_districts.unoccupied == []
+def test_build_state_no_unoccupied(fill_colorado_multiple_districts, filled_graph):
+    """Test that after filling the state, no unoccupied tracts remain."""
+    assert fill_colorado_multiple_districts.unoccupied == []
 
 
 def test_build_state_right_number_districts(fill_colorado_multiple_districts):
