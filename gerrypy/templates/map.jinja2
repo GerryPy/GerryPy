@@ -2,17 +2,18 @@
 {% block title %}
 GerryPy
 {% endblock %}
+{% block nav_title %}<span>GerryPy</span>{% endblock %}
 {% block body %}
     <div class='container'>
-        <form>
-            <label>State:</label>
+        <form id='mapform'>
+{#             <label>State:</label>
             <select name='state'>
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
                 <option value="AZ">Arizona</option>
                 <option value="AR">Arkansas</option>
                 <option value="CA">California</option>
-                <option value="CO">Colorado</option>
+                <option value="CO" selected>Colorado</option>
                 <option value="CT">Connecticut</option>
                 <option value="DE">Delaware</option>
                 <option value="FL">Florida</option>
@@ -53,32 +54,107 @@ GerryPy
                 <option value="UT">Utah</option>
                 <option value="VT">Vermont</option>
                 <option value="VA">Virginia</option>
-                <option value="WA" selected>Washington</option>
+                <option value="WA">Washington</option>
                 <option value="WV">West Virginia</option>
                 <option value="WI">Wisconsin</option>
                 <option value="WY">Wyoming</option>
             </select>
-            <br><br>
+            <br><br> #}
             <div class='criteria'>
-                <label>Criteria: </label>
+{#                 <label>Group by: </label>
                 <select name='criteria'>
-                    <option value='competitive'>competitive</option>
-                </select>
-                <label>Weight: </label>
-                <select name='weight'>
+                    <option value='county'>County</option>
+                    <option value='pop_density'>Pop. Density</option>
+                </select> #}
+                <label>County Weight: </label>
+                <select name='countyweight'>
                     <option value='1'>1</option>
                     <option value='2'>2</option>
                     <option value='3'>3</option>
                     <option value='4'>4</option>
                     <option value='5'>5</option>
                 </select>
-            </div>
+                <label>Compactness Weight: </label>
+                <select name='compactweight'>
+                    <option value='1'>1</option>
+                    <option value='2'>2</option>
+                    <option value='3'>3</option>
+                    <option value='4'>4</option>
+                    <option value='5'>5</option>
+                </select>
             <br>
-            <input type="submit">
+            <input type="submit" class="btn btn-danger" value="Generate Districts">
         </form>
-        <div class="jumbotron">
-            This is where the map might go
-        </div>
+        <div id="map"></div>
     </div>
-    <div class='container'>This is where the data might go</div>
+    <script id='map-script' data-json={{ request.static_url('gerrypy:views/geo.json') }}>
+        var map;
+        function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 7,
+          center: {lat: 39, lng: -106},
+          styles: [
+              // {
+              //   "featureType": "road",
+              //   "stylers": [
+              //     { "visibility": "off" }
+              //   ]
+              // },
+              {
+                "featureType": "poi.park",
+                "stylers": [
+                  { "visibility": "off" }
+                ]
+              }
+          ]
+        });
+
+        {% if geojson %}
+        map.data.loadGeoJson("{{ request.static_url('gerrypy:views/geo.json') }}");
+
+        map.data.setStyle(function(feature) {
+          var color = feature.getProperty('color');
+          return ({
+            fillColor: color,
+            strokeColor: color,
+            strokeWeight: 1
+          });
+        });
+
+        var contentString = '<div id="content">'+
+          '<h4 id="districtid"></h4>'+
+          '<h5 id="population"></h5>'+
+          '<h5 id="area"></h5>'+
+          '</div>';
+
+        var infowindow = new google.maps.InfoWindow({
+            content: contentString
+        });
+
+
+        map.data.addListener('click', function(event) {
+            var latitude = event.latLng.lat();
+            var longitude = event.latLng.lng();
+            infowindow.setPosition({lat: latitude, lng: longitude})
+            infowindow.open(map);
+            var $info = $('#content')
+            $info.find('#districtid').text('District no. ' + event.feature.getProperty('id'))
+            $info.find('#population').text('Population: ' + event.feature.getProperty('population').toLocaleString())
+            $info.find('#area').html('Area: ' + (event.feature.getProperty('area') * 10000).toFixed(2) + ' km' + '2'.sup())
+        });
+
+        map.data.addListener('mouseover', function(event) {
+          map.data.revertStyle();
+          map.data.overrideStyle(event.feature, {strokeWeight: 2});
+        });
+
+        map.data.addListener('mouseout', function(event) {
+          map.data.revertStyle();
+        });
+        {% endif %}
+        }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyATNCmyRPL0kWzFqcQ2D9cfMol1kOXsaoI&callback=initMap">
+    </script>
 {% endblock %}
