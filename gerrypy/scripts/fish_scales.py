@@ -197,12 +197,11 @@ class State(object):
 
     def build_district(self, tgt_population, dist_num, criteria):
         """Create a new district stemming from the start node with a given population."""
-        building = True
         dst = OccupiedDist(dist_num, self.state_graph)
         self.districts.append(dst)
         start = self.find_start()
         self.swap(dst, start) #if state is full, this wont work
-        while building:
+        while True:
             new_tract = self.select_next(dst, criteria)
             if new_tract is None:
                 for unoc in self.unoccupied:
@@ -223,10 +222,6 @@ class State(object):
                             unassigned_neighbors[i],
                             unassigned_neighbors[i - 1]
                         ):
-                            # dst.rem_node(new_tract, self.state_graph)
-                            # unoc_dst.add_node(new_tract, self.state_graph)
-                            # building = False
-                            # pass
                             unoc_neighbors = [x for x in nx.connected_components(self.unoccupied[0].nodes)]
                             biggest = max(unoc_neighbors, key=lambda x: len(x))
                             unoc_neighbors.remove(biggest)
