@@ -36,12 +36,15 @@ def about_view(request):
         patrickdesc = fial.read()
     with io.open("gerrypy/static/profiledescs/jordandesc.txt") as fial:
         jordandesc = fial.read()
+    with io.open("gerrypy/static/gerrypydesc.txt") as fial:
+        gerrypydesc = fial.read()
     return {
         "averydesc": averydesc,
         "forddesc": forddesc,
         "juliendesc": juliendesc,
         "patrickdesc": patrickdesc,
         "jordandesc": jordandesc,
+        "gerrypydesc": gerrypydesc,
     }
 
 
