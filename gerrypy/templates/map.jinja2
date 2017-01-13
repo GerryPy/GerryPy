@@ -4,7 +4,7 @@ GerryPy
 {% endblock %}
 {% block body %}
     <div class='container'>
-        <form>
+        <form id='mapform'>
             <label>State:</label>
             <select name='state'>
                 <option value="AL">Alabama</option>
@@ -60,9 +60,10 @@ GerryPy
             </select>
             <br><br>
             <div class='criteria'>
-                <label>Criteria: </label>
+                <label>Group by: </label>
                 <select name='criteria'>
-                    <option value='competitive'>competitive</option>
+                    <option value='county'>County</option>
+                    <option value='pop_density'>Pop. Density</option>
                 </select>
                 <label>Weight: </label>
                 <select name='weight'>
