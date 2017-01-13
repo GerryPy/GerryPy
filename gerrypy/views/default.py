@@ -13,10 +13,14 @@ def home_view(request):
 @view_config(route_name='map', renderer='../templates/map.jinja2')
 def map_view(request):
     """If form submitted, generate districts and return map with geojson."""
-    if request.method == 'POST':
+    if request.GET:
+        criteria = {
+            'county' : request.GET['countyweight'],
+            'compactness' : request.GET['compactweight']
+        }
         num_dst = 7
         state = State(request, num_dst)
-        state.fill_state(request)
+        state.fill_state(request, criteria)
         with open('gerrypy/views/geo.json', 'w') as the_file:
             the_file.write(build_JSON(request))
         return {'geojson': 'ok'}
@@ -58,6 +62,7 @@ def build_JSON(request):
     colors = ['blue', 'red', 'yellow', 'purple', 'orange', 'green', 'black']
 
     for idx, block in enumerate(properties):
+        print(len(geojson_queries[idx]))
         json_string += '{' + '"type": "Feature", "properties": '
         json_string += '{'
         json_string += '"id": {}, "area": {}, "population": {}, "color": "{}"'.format(str(block.districtid), str(block.area), str(block.population), str(colors[idx % 7])) + '}'

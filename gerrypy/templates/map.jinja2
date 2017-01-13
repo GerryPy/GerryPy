@@ -5,8 +5,8 @@ GerryPy
 {% block nav_title %}<span>GerryPy</span>{% endblock %}
 {% block body %}
     <div class='container'>
-        <form id='mapform' method='POST'>
-            {# <label>State:</label>
+        <form id='mapform'>
+{#             <label>State:</label>
             <select name='state'>
                 <option value="AL">Alabama</option>
                 <option value="AK">Alaska</option>
@@ -59,22 +59,30 @@ GerryPy
                 <option value="WI">Wisconsin</option>
                 <option value="WY">Wyoming</option>
             </select>
-            <br><br>
+            <br><br> #}
             <div class='criteria'>
-                <label>Group by: </label>
+{#                 <label>Group by: </label>
                 <select name='criteria'>
                     <option value='county'>County</option>
                     <option value='pop_density'>Pop. Density</option>
-                </select>
-                <label>Weight: </label>
-                <select name='weight'>
+                </select> #}
+                <label>County Weight: </label>
+                <select name='countyweight'>
                     <option value='1'>1</option>
                     <option value='2'>2</option>
                     <option value='3'>3</option>
                     <option value='4'>4</option>
                     <option value='5'>5</option>
-                </select> #}
-            {# <br> #}
+                </select>
+                <label>Compactness Weight: </label>
+                <select name='compactweight'>
+                    <option value='1'>1</option>
+                    <option value='2'>2</option>
+                    <option value='3'>3</option>
+                    <option value='4'>4</option>
+                    <option value='5'>5</option>
+                </select>
+            <br>
             <input type="submit" class="btn btn-danger" value="Generate Districts">
         </form>
         <div id="map"></div>

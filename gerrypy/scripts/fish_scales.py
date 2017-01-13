@@ -187,6 +187,8 @@ class State(object):
             tgt_population = rem_pop / rem_dist
             self.build_district(tgt_population, num + 1)
 
+        if len(self.state_graph) != 1249:
+            print('blahhh')
         assign_district(request, self.state_graph)
         populate_district_table(request, self)
         if self.unoccupied:
