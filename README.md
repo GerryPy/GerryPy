@@ -8,13 +8,6 @@ GerryPy is a geospatial algorithm for building congressional districts.
 
 GerryPy takes census tracts for the state of Colorado and builds the required number of congressional districts.  The algorithm attempts to make districts compact and close to the required population of 711,000.  Each algorithm attempt produces a different result.  In the current iteration districts typically do not fill the entire state.   
 
-#Planned features
-1) Specify criteria for how the algorithm should prefer to group census tracts.
-
-2) Support for all 50 states.
-
-3) Reliably fill state completely and meet legal criteria for district.
-
 # Website
 gerrypy.herokuapp.com
 
@@ -24,6 +17,13 @@ GerryPy is built in Python and uses a PostGRES/PostGIS database.
 PostGIS functions and GoogleMaps support and display the spatial data.
 
 Pyramid ORM and Bootstrap for the website.
+
+# Planned features
+1) Specify criteria for how the algorithm should prefer to group census tracts.
+
+2) Support for all 50 states.
+
+3) Reliably fill state completely and meet legal criteria for district.
 
 # License
 MIT License
