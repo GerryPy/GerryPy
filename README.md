@@ -26,6 +26,8 @@ Pyramid ORM and Bootstrap for the website.
 
 4) Implement Mapbox or other modern map tool for front end.
 
+5) Update Logo
+
 # License
 MIT License
 
