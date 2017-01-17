@@ -23,6 +23,11 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+bin/
+lib64
+pyvenv.cfg
+share/
+pip-selfcheck.json
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -80,10 +85,13 @@ celerybeat-schedule
 
 # virtualenv
 venv/
-ENV/
+*ENV/
+test_py2
 
 # Spyder project settings
 .spyderproject
 
 # Rope project settings
 .ropeproject
+
+geo.json

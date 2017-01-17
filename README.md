@@ -1,8 +1,39 @@
+![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)
+[![License](https://img.shields.io/badge/license-MIT%20License-brightgreen.svg)](https://opensource.org/licenses/MIT)
+
+
 # GerryPy
-Geospatial Algorithm for Building Congressional Distrcits
+GerryPy is a geospatial algorithm for building congressional districts.
 
-Using data from the US census and the American Community Survey, we hope to develop criteria for a revised mapping of US congressional districts.  In the current system, the governing party in each state has the authority to draw district lanes as it pleases.  This results in the heavily diluted power of the minority party while the governing party ensures it holds as many congressional seats as possible.  We see this as a problem, and would like to provide an alternative that allows user to select criteria that will result in the recreation of district lines in a fair and balanced manner.
+GerryPy takes census tracts for the state of Colorado and builds the required number of congressional districts.  The algorithm attempts to make districts compact and close to the required population of 711,000.  Each algorithm attempt produces a different result.
 
-We will build this application using the MVC design pattern in the Pyramid framework.  We will import our datasets into a PostgreSQL database which will be accessed using PostGIS.  Using Python and GIS, we will construct district borders using an algorithm that functions according to the criteria that we specify.  The data we have has the granularity of city blocks, so each one will be addressed and assigned to a district according to its demograhpics and the demographics of its adjecent blocks.  An execution of our program will be confined to one state as these restrict the boundaries of districts.
+# Website
+gerrypy.herokuapp.com
 
-Our program will instantiate a district at the corner of a state, it will continue to grab up adjacent blocks until a specified population threshold is chosen.  This threshold will be close to the state's population divided by the number of congressional district.  Upon reaching this threshold, a new starting point for district growth will be chosen.  For each new district after the first, the initial district will be chosen so it minimizes the number of nearby districts.  Upon the initial mappings of districts, there will invevitably be "ophan" blocks that are surrounded by districts but do not belong to one themselves.  A second pass of our program will begin in which these oprhan districts are absorbed. In this phase district lines shift sightly to to accomodate all of the orphans without any district containing more than the maximum allowed population. 
+# Major Components
+GerryPy is built in Python and uses a PostGRES/PostGIS database.  
+
+PostGIS functions and GoogleMaps support and display the spatial data.
+
+Pyramid ORM and Bootstrap for the website.
+
+# Planned features
+1) Added criteria for how the algorithm should prefer to group census tracts.
+
+2) Support for all 50 states.
+
+3) Run algorithm multiple times and select the best one.
+
+# License
+MIT License
+
+# Team
+[Ford Fowler](https://github.com/fordf "Good At Everything")
+
+[Avery Pratt](https://github.com/averyprett "Found Another Edge Case in the Algorithm")
+
+[Patrick Saunders](https://github.com/pasaunders "Legal Mind and Test Master")
+
+[Jordan Schatzman](https://github.com/julienawilson "Database Genius")
+
+[Julien Wilson](https://github.com/julienawilson "The Mapper")

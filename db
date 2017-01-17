@@ -1,0 +1,15 @@
+                                        List of databases
+       Name       |     Owner     | Encoding |   Collate   |    Ctype    |   Access privileges   
+------------------+---------------+----------+-------------+-------------+-----------------------
+ gisdb            | julienawilson | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ julienawilson    | postgres      | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ learning_journal | postgres      | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ postgres         | postgres      | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ template0        | postgres      | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+                  |               |          |             |             | postgres=CTc/postgres
+ template1        | postgres      | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+                  |               |          |             |             | postgres=CTc/postgres
+ test_db          | julienawilson | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ test_db2         | julienawilson | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+(8 rows)
+

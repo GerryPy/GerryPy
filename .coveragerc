@@ -1,0 +1,3 @@
+[run]
+source = gerrypy
+omit = gerrypy/test*

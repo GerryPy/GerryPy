@@ -1,0 +1,18 @@
+{% extends "layout.jinja2" %}
+{% block css %}
+    <link href="{{ request.static_url('gerrypy:static/home.css') }}" rel="stylesheet">
+{% endblock %}
+{% block title %}
+GerryPy
+{% endblock %}
+{% block body %}
+    <div class="container">
+      <div class="jumbotron">
+        <h1>GerryPy</h1>
+        <p>Let the machines do the gerrymandering.</p>
+        <hr style="color:black">
+        <p><a class="btn btn-primary btn-lg" href="{{ request.route_url('map') }}" role="button">Get Started</a></p>
+      </div>
+    </div>
+    </div>
+{% endblock %}
