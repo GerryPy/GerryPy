@@ -24,6 +24,10 @@ Pyramid ORM and Bootstrap for the website.
 
 3) Reliably fill state completely and meet legal criteria for district.
 
+4) Implement Mapbox or other modern map tool for front end.
+
+5) Update Logo
+
 # License
 MIT License
 
