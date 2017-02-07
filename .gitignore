@@ -94,4 +94,4 @@ test_py2
 # Rope project settings
 .ropeproject
 
-gerrypy/views/geo.json
+geo.json
