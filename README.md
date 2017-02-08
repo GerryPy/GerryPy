@@ -18,11 +18,11 @@ PostGIS functions and GoogleMaps support and display the spatial data.
 Pyramid ORM and Bootstrap for the website.
 
 # Planned features
-1) Specify criteria for how the algorithm should prefer to group census tracts.
+1) Added criteria for how the algorithm should prefer to group census tracts.
 
 2) Support for all 50 states.
 
-3) Reliably fill state completely and meet legal criteria for district.
+3) Run algorithm multiple times and select the best one.
 
 4) Implement Mapbox or other modern map tool for front end.
 
