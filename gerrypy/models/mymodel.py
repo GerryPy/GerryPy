@@ -35,7 +35,7 @@ class DistrictView(Base):
 
 class Tract(Base):
     """Tract model in the db."""
-    __tablename__ = 'colorado_tracts'
+    __tablename__ = 'colorado_tracts2'
     gid = Column(Integer, primary_key=True)
     districtid = Column(Integer)
     shape_area = Column(Numeric)
