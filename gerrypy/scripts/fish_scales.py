@@ -194,8 +194,12 @@ class State(object):
         """Create a new district stemming from the start node with a given population."""
         dst = OccupiedDist(dist_num, self.state_graph)
         self.districts.append(dst)
-        start = self.find_start()
-        self.swap(dst, start)  # if state is full, this wont work
+        for built_dst in self.districts:
+            if built_dst.population > (self.population / self.num_dst) * 1.05:
+                self.cannibalize(built_dst, dst, self.population / self.num_dst)
+        if not dst.nodes:
+            start = self.find_start()
+            self.swap(dst, start)  # if state is full, this wont work
         while True:
             new_tract = self.select_next(dst, criteria)
             if new_tract is None:
@@ -234,15 +238,43 @@ class State(object):
                                 self.swap(dst, tract)
                         break
 
-    def swap(self, dst, new_tract):
+    def cannibalize(self, old_dst, new_dst, target_pop):
+        """Start growing a new district inside of an old one until the old district's population isn't greater than the target population."""
+        old_unoc = UnoccupiedDist(0, self.state_graph, old_dst.nodes.nodes())
+        new_oc = OccupiedDist(0, self.state_graph, self.unoccupied[0].nodes.nodes())
+        while old_unoc.population > target_pop:
+            tract = self.select_next()
+
+    def swap(self, dst, new_tract, unoc=None):
         """Exchange tract from unoccupied district to district."""
         # unoc_dst = None
         # for island in self.unoccupied:
         #     if new_tract in island.perimeter:
         #         unoc_dst = island
-        self.unoccupied[0].rem_node(new_tract, self.state_graph)
+        if not unoc:
+            unoc = self.unoccupied[0]
+        unoc.rem_node(new_tract, self.state_graph)
         dst.add_node(new_tract, self.state_graph)
         # return unoc_dst
+
+    def select_worst(self, old_dst, new_dst, criteria):
+        """."""
+        worst_rating = 0
+        worst = None
+        for perimeter_tract in old_dst.perimeter:
+            if perimeter_tract in new_dst.perimeter:
+                count = 0
+                for neighbor in self.state_graph.neighbors(perimeter_tract):
+                    if neighbor.districtid != old_dst.districtID:
+                        count += 1
+                counties = set()
+                for node in old_dst.nodes:
+                    counties.add(node.county)
+                same_county = 0
+                if perimeter_tract.county in counties:
+                    same_county = 1
+                rating = count * int(criteria['compactness']) + same_county * int(criteria['county'])
+
 
     def select_next(self, dst, criteria):
         """Choose the next best tract to add to growing district."""
