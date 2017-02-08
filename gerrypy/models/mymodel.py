@@ -25,7 +25,7 @@ class District(Base):
 
 class DistrictView(Base):
     """Model for each district built by the program."""
-    __tablename__ = 'vwdistrict'
+    __tablename__ = 'vwdistrict2'
     districtid = Column(Integer, primary_key=True)
     #district_number = Column(Integer)
     area = Column(Float)
