@@ -175,20 +175,38 @@ class State(object):
 
     def fill_state(self, request, criteria):
         """Build districts until all unoccupied tracts are claimed."""
-        from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
+        print("\n\nstarting...")
+        while True:
+            self.__init__(request, self.num_dst)
+            from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
 
-        for num in range(self.num_dst):
-            rem_pop = 0
-            for unoc in self.unoccupied:
-                rem_pop += unoc.population
-            rem_dist = self.num_dst - len(self.districts)
-            tgt_population = rem_pop / rem_dist
-            self.build_district(tgt_population, num + 1, criteria)
-        assign_district(request, self.state_graph)
-        populate_district_table(request, self)
-        if self.unoccupied:
-            return False
+            for num in range(self.num_dst):
+                rem_pop = 0
+                for unoc in self.unoccupied:
+                    rem_pop += unoc.population
+                rem_dist = self.num_dst - len(self.districts)
+                tgt_population = rem_pop / rem_dist
+                self.build_district(tgt_population, num + 1, criteria)
+            assign_district(request, self.state_graph)
+            populate_district_table(request, self)
+            maximum = 0
+            minimum = self.population / self.num_dst
+            for dst in self.districts:
+                if dst.population > maximum:
+                    maximum = dst.population
+                if dst.population < minimum:
+                    minimum = dst.population
+            print("maximum: {}".format(maximum))
+            print("minimum: {}".format(minimum))
+            if maximum - minimum < (self.population / self.num_dst) / 20:
+                break
+            print("trying again...")
+        print("completed!")
         return True
+
+            # if self.unoccupied:
+            #     return False
+            # return True
 
     def build_district(self, tgt_population, dist_num, criteria):
         """Create a new district stemming from the start node with a given population."""
@@ -252,7 +270,15 @@ class State(object):
                 same_county = 0
                 if perimeter_tract.county in counties:
                     same_county = 1
-                rating = count * int(criteria['compactness']) + same_county * int(criteria['county'])
+                try:
+                    kid_score = int(perimeter_tract.dp0120005) / int(perimeter_tract.tract_pop) * 2
+                except:
+                    kid_score = 0
+                if len(self.districts) % 2:
+                    kid_score = 1 - kid_score
+                rating = count * int(criteria['compactness']) + \
+                         same_county * int(criteria['county']) * 5 + \
+                         kid_score * int(criteria['kid_score']) * 5
                 if rating > best_rating:
                     best_rating = rating
                     best = perimeter_tract
@@ -265,6 +291,8 @@ class State(object):
         """
         best_set = set()
         best = None
+        from random import shuffle
+        shuffle(self.unoccupied[0].perimeter)
         for tract in self.unoccupied[0].perimeter:
             unique_dists = set()
             for neighbor in self.state_graph.neighbors(tract):

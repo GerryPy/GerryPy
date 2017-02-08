@@ -25,7 +25,7 @@ class District(Base):
 
 class DistrictView(Base):
     """Model for each district built by the program."""
-    __tablename__ = 'vwdistrict'
+    __tablename__ = 'vwdistrict2'
     districtid = Column(Integer, primary_key=True)
     #district_number = Column(Integer)
     area = Column(Float)
@@ -35,7 +35,7 @@ class DistrictView(Base):
 
 class Tract(Base):
     """Tract model in the db."""
-    __tablename__ = 'colorado_tracts'
+    __tablename__ = 'colorado_tracts2'
     gid = Column(Integer, primary_key=True)
     districtid = Column(Integer)
     shape_area = Column(Numeric)
@@ -43,6 +43,9 @@ class Tract(Base):
     geom = Column(Geometry('MultiPolygon'))
     isborder = Column(Integer)
     county = Column(Integer)
+    dp0120005 = Column(Integer)  # Number of Children
+    dp0130011 = Column(Integer)  # Householder Living alone
+
 
 
 class Edge(Base):
