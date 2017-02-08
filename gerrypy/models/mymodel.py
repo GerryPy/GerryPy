@@ -43,8 +43,8 @@ class Tract(Base):
     geom = Column(Geometry('MultiPolygon'))
     isborder = Column(Integer)
     county = Column(Integer)
-    DP0120005 = Column(Integer)  # Number of Children
-    DP0130011 = Column(Integer)  # Householder Living alone
+    dp0120005 = Column(Integer)  # Number of Children
+    dp0130011 = Column(Integer)  # Householder Living alone
 
 
 
