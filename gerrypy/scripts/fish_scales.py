@@ -195,7 +195,7 @@ class State(object):
         dst = OccupiedDist(dist_num, self.state_graph)
         self.districts.append(dst)
         start = self.find_start()
-        self.swap(dst, start) #if state is full, this wont work
+        self.swap(dst, start)  # if state is full, this wont work
         while True:
             new_tract = self.select_next(dst, criteria)
             if new_tract is None:
@@ -210,21 +210,29 @@ class State(object):
                 self.swap(dst, new_tract)
                 neighbors = self.state_graph.neighbors(new_tract)
                 unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in self.unoccupied[0].nodes]
-                if len(unassigned_neighbors) > 1:
-                    for i in range(len(unassigned_neighbors)):
-                        if not nx.has_path(
-                            self.unoccupied[0].nodes,
-                            unassigned_neighbors[i],
-                            unassigned_neighbors[i - 1]
-                        ):
-                            unoc_neighbors = [x for x in nx.connected_components(self.unoccupied[0].nodes)]
-                            biggest = max(unoc_neighbors, key=lambda x: len(x))
-                            unoc_neighbors.remove(biggest)
+                for i in range(len(unassigned_neighbors)):
+                    if not nx.has_path(
+                        self.unoccupied[0].nodes,
+                        unassigned_neighbors[i],
+                        unassigned_neighbors[i - 1]
+                    ):
+                        unoc_neighbors = [x for x in nx.connected_components(self.unoccupied[0].nodes)] # Returns a list of lists of the unoccupied tracts.
+                        biggest = None
+                        biggest_pop = 0
+                        for unoc_dist in unoc_neighbors:  # Find the district with the largest population
+                            total_pop = 0
+                            for tract in unoc_dist:
+                                total_pop += tract.tract_pop
+                            if total_pop > biggest_pop:
+                                biggest_pop = total_pop
+                                biggest = unoc_dist
 
-                            for neigh in unoc_neighbors:
-                                for tract in neigh:
-                                    self.swap(dst, tract)
-                            break
+                        unoc_neighbors.remove(biggest)  # Remove the largest district from the list.
+
+                        for neigh in unoc_neighbors:  # Add all tracts in the other unoccupied districts to the occupied district.
+                            for tract in neigh:
+                                self.swap(dst, tract)
+                        break
 
     def swap(self, dst, new_tract):
         """Exchange tract from unoccupied district to district."""

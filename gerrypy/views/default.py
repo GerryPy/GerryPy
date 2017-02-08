@@ -58,7 +58,11 @@ def build_JSON(request):
 
     # query = request.dbsession.query(Tract.geom.ST_AsGeoJSON()).all()
     geojson_queries = request.dbsession.query(DistrictView.geom.ST_AsGeoJSON()).all()
+    # import pdb; pdb.set_trace()
     properties = request.dbsession.query(DistrictView).all()
+    # for item in properties:
+    # geojson_queries1 = [thing.geom.ST_AsGeoJSON() for thing in properties]
+    # import pdb; pdb.set_trace()
     colors = ['blue', 'red', 'yellow', 'purple', 'orange', 'green', 'black']
 
     for idx, block in enumerate(properties):
