@@ -270,7 +270,15 @@ class State(object):
                 same_county = 0
                 if perimeter_tract.county in counties:
                     same_county = 1
-                rating = count * int(criteria['compactness']) + same_county * int(criteria['county'])
+                try:
+                    kid_score = int(perimeter_tract.dp0120005) / int(perimeter_tract.tract_pop) * 2
+                except:
+                    kid_score = 0
+                if len(self.districts) % 2:
+                    kid_score = 1 - kid_score
+                rating = count * int(criteria['compactness']) + \
+                         same_county * int(criteria['county']) * 5 + \
+                         kid_score * int(criteria['kid_score']) * 5
                 if rating > best_rating:
                     best_rating = rating
                     best = perimeter_tract
