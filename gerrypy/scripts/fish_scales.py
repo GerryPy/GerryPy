@@ -184,6 +184,7 @@ class State(object):
             rem_dist = self.num_dst - len(self.districts)
             tgt_population = rem_pop / rem_dist
             self.build_district(tgt_population, num + 1, criteria)
+        self.shift_districts(criteria)
         assign_district(request, self.state_graph)
         populate_district_table(request, self)
         if self.unoccupied:
@@ -194,9 +195,6 @@ class State(object):
         """Create a new district stemming from the start node with a given population."""
         dst = OccupiedDist(dist_num, self.state_graph)
         self.districts.append(dst)
-        for built_dst in self.districts:
-            if built_dst.population > float(self.population / self.num_dst) * 1.05:
-                self.cannibalize(built_dst, dst, self.population / self.num_dst)
         if not dst.nodes:
             start = self.find_start()
             self.swap(dst, start)  # if state is full, this wont work
@@ -221,16 +219,7 @@ class State(object):
                         unassigned_neighbors[i - 1]
                     ):
                         unoc_neighbors = [x for x in nx.connected_components(self.unoccupied[0].nodes)] # Returns a list of lists of the unoccupied tracts.
-                        import pdb; pdb.set_trace()
-                        biggest = max(unoc_neighbors, key=lambda x: sum([y.population for y in x]))
-                        biggest_pop = 0
-                        for unoc_dist in unoc_neighbors:  # Find the district with the largest population
-                            total_pop = 0
-                            for tract in unoc_dist:
-                                total_pop += tract.tract_pop
-                            if total_pop > biggest_pop:
-                                biggest_pop = total_pop
-                                biggest = unoc_dist
+                        biggest = max(unoc_neighbors, key=lambda x: sum([y.tract_pop for y in x]))
 
                         unoc_neighbors.remove(biggest)  # Remove the largest district from the list.
 
@@ -239,12 +228,32 @@ class State(object):
                                 self.swap(dst, tract)
                         break
 
-    def cannibalize(self, old_dst, new_dst, target_pop):
-        """Start growing a new district inside of an old one until the old district's population isn't greater than the target population."""
-        old_unoc = UnoccupiedDist(0, self.state_graph, old_dst.nodes.nodes())
-        new_oc = OccupiedDist(0, self.state_graph, self.unoccupied[0].nodes.nodes())
-        while old_unoc.population > target_pop:
-            tract = self.select_next()
+    def shift_districts(self, criteria):
+        """Resize and rearrange built districts."""
+        smallest_dst = min(self.districts, key=lambda x: x.population)
+        if smallest_dst.population < float(self.population / self.num_dst) * .95:
+            print('shifting')
+            neighbors = set([t.districtid for t in smallest_dst.perimeter])
+            neighbor_dsts = [x for x in self.districts if x.districtID in neighbors]
+            while smallest_dst.population < self.population / self.num_dst:
+                biggest_neighbor = max(neighbor_dsts, key=lambda x: x.population)
+                tract = self.select_next(smallest_dst, criteria, consume=biggest_neighbor.districtID)
+                self.swap(smallest_dst, tract, unoc=biggest_neighbor)
+            # check for split
+            for dst in neighbor_dsts:
+                nds = list(nx.connected_components(dst.nodes))
+                if len(nds) > 1:
+                    print('dst ' + str(dst.districtID) + ' is split, I think')
+            self.shift_districts(criteria)
+
+    def smallest_dst(self):
+        """Return the smallest district."""
+        return min(self.districts, key=lambda x: x.population)
+
+    def cannibalize(self, small_dst, big_dst, target_pop):
+        """Small district consumes big district until small district is big enough."""
+        while small_dst.population < float(self.population / self.num_dst):
+            big_dst.rem_node()
 
     def swap(self, dst, new_tract, unoc=None):
         """Exchange tract from unoccupied district to district."""
@@ -276,13 +285,12 @@ class State(object):
                     same_county = 1
                 rating = count * int(criteria['compactness']) + same_county * int(criteria['county'])
 
-
-    def select_next(self, dst, criteria):
+    def select_next(self, dst, criteria, consume=None):
         """Choose the next best tract to add to growing district."""
         best_rating = 0
         best = None
         for perimeter_tract in dst.perimeter:
-            if perimeter_tract.districtid is None:
+            if perimeter_tract.districtid is consume:
                 count = 0
                 for neighbor in self.state_graph.neighbors(perimeter_tract):
                     if neighbor.districtid == dst.districtID:
