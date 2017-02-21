@@ -195,7 +195,7 @@ class State(object):
         dst = OccupiedDist(dist_num, self.state_graph)
         self.districts.append(dst)
         for built_dst in self.districts:
-            if built_dst.population > (self.population / self.num_dst) * 1.05:
+            if built_dst.population > float(self.population / self.num_dst) * 1.05:
                 self.cannibalize(built_dst, dst, self.population / self.num_dst)
         if not dst.nodes:
             start = self.find_start()
@@ -221,7 +221,8 @@ class State(object):
                         unassigned_neighbors[i - 1]
                     ):
                         unoc_neighbors = [x for x in nx.connected_components(self.unoccupied[0].nodes)] # Returns a list of lists of the unoccupied tracts.
-                        biggest = None
+                        import pdb; pdb.set_trace()
+                        biggest = max(unoc_neighbors, key=lambda x: sum([y.population for y in x]))
                         biggest_pop = 0
                         for unoc_dist in unoc_neighbors:  # Find the district with the largest population
                             total_pop = 0
