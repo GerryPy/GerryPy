@@ -15,7 +15,7 @@ from ..models import (
     get_engine,
     get_session_factory,
     get_tm_session)
-from ..models import District
+# from ..models import District
 
 
 def usage(argv): #pragma: no cover
@@ -41,6 +41,3 @@ def main(argv=sys.argv):#pragma: no cover
 
     with transaction.manager:
         dbsession = get_tm_session(session_factory, transaction.manager)
-
-        model = District(district_number=1, area=345.3, population=5000)
-        dbsession.add(model)

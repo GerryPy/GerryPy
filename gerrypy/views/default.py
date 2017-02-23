@@ -15,8 +15,8 @@ def map_view(request):
     """If form submitted, generate districts and return map with geojson."""
     if request.GET:
         criteria = {
-            'county' : request.GET['countyweight'],
-            'compactness' : request.GET['compactweight']
+            'county': request.GET['countyweight'],
+            'compactness': request.GET['compactweight']
         }
         num_dst = 7
         state = State(request, num_dst)

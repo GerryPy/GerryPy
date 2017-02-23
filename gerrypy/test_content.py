@@ -1,7 +1,7 @@
 import pytest
 import transaction
 from pyramid import testing
-from gerrypy.models.mymodel import Tract, District, Edge, DistrictView
+from gerrypy.models.mymodel import Tract, Edge, DistrictView
 from gerrypy.models.meta import Base
 from gerrypy.scripts.fish_scales import State, OccupiedDist
 from gerrypy.graph_db_interact.assigndistrict import assign_district
@@ -161,32 +161,32 @@ def test_assign_district_correct_dist_assigned(dummy_request, filled_graph):
     assert test_tract.districtid == 3
 
 
-def test_insert_district_table(dummy_request):
-    """Test that our code to truncate district table works."""
-    test_row1 = District(districtid=456,
-                         population=5000,
-                         area=200)
-    test_row2 = District(districtid=789,
-                         population=5400,
-                         area=400)
-    current_length = dummy_request.dbsession.query(District).count()
-    dummy_request.dbsession.add(test_row1)
-    dummy_request.dbsession.add(test_row2)
-    assert dummy_request.dbsession.query(District).count() == current_length + 2
+# def test_insert_district_table(dummy_request):
+#     """Test that our code to truncate district table works."""
+#     test_row1 = District(districtid=456,
+#                          population=5000,
+#                          area=200)
+#     test_row2 = District(districtid=789,
+#                          population=5400,
+#                          area=400)
+#     current_length = dummy_request.dbsession.query(District).count()
+#     dummy_request.dbsession.add(test_row1)
+#     dummy_request.dbsession.add(test_row2)
+#     assert dummy_request.dbsession.query(District).count() == current_length + 2
 
 
-def test_truncate_district_table(dummy_request):
-    """Test that our code to truncate district table works."""
-    test_row1 = District(districtid=789,
-                         population=5000,
-                         area=200)
-    test_row2 = District(districtid=111,
-                         population=5400,
-                         area=400)
-    dummy_request.dbsession.add(test_row1)
-    dummy_request.dbsession.add(test_row2)
-    dummy_request.dbsession.query(District).delete()
-    assert dummy_request.dbsession.query(District).count() == 0
+# def test_truncate_district_table(dummy_request):
+#     """Test that our code to truncate district table works."""
+#     test_row1 = District(districtid=789,
+#                          population=5000,
+#                          area=200)
+#     test_row2 = District(districtid=111,
+#                          population=5400,
+#                          area=400)
+#     dummy_request.dbsession.add(test_row1)
+#     dummy_request.dbsession.add(test_row2)
+#     dummy_request.dbsession.query(District).delete()
+#     assert dummy_request.dbsession.query(District).count() == 0
 
 
 # def test_populate_district_table(dummy_request, sample_state):
@@ -293,4 +293,3 @@ def test_map_page_loads_correct_json(testapp):
     with open('gerrypy/views/geo.json', 'r') as the_file:
         our_json = the_file.read()
     assert our_json == json_response
-
