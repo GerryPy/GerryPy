@@ -4,7 +4,7 @@ from pyramid import testing
 from gerrypy.models.mymodel import Tract, District, Edge, DistrictView
 from gerrypy.models.meta import Base
 from gerrypy.scripts.fish_scales import State, OccupiedDist
-from gerrypy.graph_db_interact.assigndistrict import populate_district_table, assign_district
+from gerrypy.graph_db_interact.assigndistrict import assign_district
 import sys
 import os
 import networkx as nx
@@ -189,18 +189,18 @@ def test_truncate_district_table(dummy_request):
     assert dummy_request.dbsession.query(District).count() == 0
 
 
-def test_populate_district_table(dummy_request, sample_state):
-    """Test district is correct length after population."""
-    populate_district_table(dummy_request, sample_state)
-    query = dummy_request.dbsession.query(District)
-    assert query.count() == 3
+# def test_populate_district_table(dummy_request, sample_state):
+#     """Test district is correct length after population."""
+#     populate_district_table(dummy_request, sample_state)
+#     query = dummy_request.dbsession.query(District)
+#     assert query.count() == 3
 
 
-def test_populate_district_table_nonunique_id(dummy_request, sample_state):
-    """Test populate district adds correct data."""
-    populate_district_table(dummy_request, sample_state)
-    query = dummy_request.dbsession.query(District).get(600)
-    assert query.area == 250420
+# def test_populate_district_table_nonunique_id(dummy_request, sample_state):
+#     """Test populate district adds correct data."""
+#     populate_district_table(dummy_request, sample_state)
+#     query = dummy_request.dbsession.query(District).get(600)
+#     assert query.area == 250420
 
 # =======View Unit Tests ================
 

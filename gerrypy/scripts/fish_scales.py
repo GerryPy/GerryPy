@@ -5,7 +5,7 @@ and store new information in a separate table.
 """
 from gerrypy.models.mymodel import Tract, Edge
 import networkx as nx
-from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
+from gerrypy.graph_db_interact.assigndistrict import assign_district
 
 
 def fill_graph(request):
@@ -184,7 +184,6 @@ class State(object):
             tgt_population = rem_pop / rem_dist
             self.build_district(tgt_population, num + 1, criteria)
         assign_district(request, self.state_graph)
-        populate_district_table(request, self)
         if self.unoccupied:
             return False
         return True
@@ -269,12 +268,3 @@ class State(object):
                 best_set = unique_dists
                 best = tract
         return best
-
-    def split_unoccupied_dist(self, unoc_dst):
-        """Remove unoccupied dist from State and adds contiguous unoccupied sub-districts."""
-        self.unoccupied.remove(unoc_dst)
-        index = len(self.unoccupied)
-        landmass = nx.connected_components(unoc_dst.nodes)
-        for island in landmass:
-            self.unoccupied.append(UnoccupiedDist(None, self.state_graph, tracts=island))
-        return self.unoccupied[index:]
