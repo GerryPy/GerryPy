@@ -34,7 +34,7 @@ class OccupiedDist(object):
     """
 
     def __init__(self, districtID, state_graph, tracts=None):
-        """."""
+        """Initialize the OccupiedDist Object."""
         self.nodes = nx.Graph()
         self.perimeter = []
         self.population = 0
@@ -95,7 +95,7 @@ class UnoccupiedDist(OccupiedDist):
     """
 
     def __init__(self, districtID, state_graph, tracts=None):
-        """."""
+        """Initialize the UnoccupiedDist Object."""
         self.nodes = nx.Graph()
         self.perimeter = []
         self.population = 0
@@ -156,7 +156,7 @@ class State(object):
     """
 
     def __init__(self, request, num_dst):
-        """Build unoccupied district(s) for entire state."""
+        """Initialize the State Object."""
         self.unoccupied = []
         self.districts = []
         self.population = 0
@@ -203,10 +203,10 @@ class State(object):
                 break  # We stop building that district
             else:
                 self.swap(dst, new_tract)  # Swap removes the tract from its unoccupied district and adds it to the occupied district.
-                neighbors = self.state_graph.neighbors(new_tract)    
+                neighbors = self.state_graph.neighbors(new_tract)
                 unassigned_neighbors = [neighbor for neighbor in neighbors if neighbor in self.unoccupied[0].nodes]  # Grab the new nodes unassigned neighbors
                 if len(unassigned_neighbors) > 1:  # If there is more than one, than a split is possible.
-                    for i in range(len(unassigned_neighbors)):  
+                    for i in range(len(unassigned_neighbors)):
                         if not nx.has_path(    # We check each node and its previous neighbor to ensure they're connected. (thanks, nx)
                             self.unoccupied[0].nodes,
                             unassigned_neighbors[i],
@@ -241,7 +241,7 @@ class State(object):
                     counties.add(node.county)
                 same_county = 0
                 if perimeter_tract.county in counties:
-                    same_county = 1  
+                    same_county = 1
                 rating = count * int(criteria['compactness']) + same_county * int(criteria['county'])  # Calculate score based on criteria.
                 if rating > best_rating:
                     best_rating = rating
@@ -254,7 +254,7 @@ class State(object):
         Based on number of bordering districts.
         """
         best_set = set()
-        best = None  
+        best = None
         for tract in self.unoccupied[0].perimeter:
             unique_dists = set()
             for neighbor in self.state_graph.neighbors(tract):

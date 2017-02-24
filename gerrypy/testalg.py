@@ -3,9 +3,7 @@
 import pytest
 from pyramid import testing
 from gerrypy.models.mymodel import Tract
-from gerrypy.models.meta import Base
 from gerrypy.test_content import db_session, configuration
-import geoalchemy2
 
 
 @pytest.fixture
