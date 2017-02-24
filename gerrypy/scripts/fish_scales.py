@@ -5,7 +5,7 @@ and store new information in a separate table.
 """
 from gerrypy.models.mymodel import Tract, Edge
 import networkx as nx
-from gerrypy.graph_db_interact.assigndistrict import assign_district
+from gerrypy.scripts.assigndistrict import assign_district
 
 
 def fill_graph(request):

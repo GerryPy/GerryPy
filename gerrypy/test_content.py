@@ -4,7 +4,7 @@ from pyramid import testing
 from gerrypy.models.mymodel import Tract, Edge, DistrictView
 from gerrypy.models.meta import Base
 from gerrypy.scripts.fish_scales import State, OccupiedDist
-from gerrypy.graph_db_interact.assigndistrict import assign_district
+from gerrypy.scripts.assigndistrict import assign_district
 import sys
 import os
 import networkx as nx
