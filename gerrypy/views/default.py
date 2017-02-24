@@ -6,42 +6,42 @@ from gerrypy.models.mymodel import DistrictView
 
 @view_config(route_name='home', renderer='../templates/home.jinja2')
 def home_view(request):
-    """Return css yes...for the home page."""
-    return {'css': 'yes'}
+    """Return the home page template."""
+    return {}
 
 
 @view_config(route_name='map', renderer='../templates/map.jinja2')
 def map_view(request):
-    """If form submitted, generate districts and return map with geojson."""
-    if request.GET:
+    """If form submitted, generate districts and build geojson api."""
+    if request.GET:  # Unless 'Generate Districts' is clicked, there are no GET params.
         criteria = {
             'county': request.GET['countyweight'],
             'compactness': request.GET['compactweight']
         }
         num_dst = 7
         state = State(request, num_dst)
-        state.fill_state(request, criteria)
-        with open('gerrypy/views/geo.json', 'w') as the_file:
+        state.fill_state(criteria)
+        with open('gerrypy/views/geo.json', 'w') as the_file:  # Builds the API for GMaps to read.
             the_file.write(build_JSON(request))
-        return {'geojson': 'ok'}
+        return {'geojson': 'ready'}
     return {}
 
 
 @view_config(route_name='about', renderer='../templates/about.jinja2')
 def about_view(request):
-    """Return info about gerrypy creator extraordinaires."""
-    with open("gerrypy/static/profiledescs/averydesc.txt") as fial:
-        averydesc = fial.read()
-    with open("gerrypy/static/profiledescs/forddesc.txt") as fial:
-        forddesc = fial.read()
-    with open("gerrypy/static/profiledescs/juliendesc.txt") as fial:
-        juliendesc = fial.read()
-    with open("gerrypy/static/profiledescs/patrickdesc.txt") as fial:
-        patrickdesc = fial.read()
-    with open("gerrypy/static/profiledescs/jordandesc.txt") as fial:
-        jordandesc = fial.read()
-    with open("gerrypy/static/gerrypydesc.txt") as fial:
-        gerrypydesc = fial.read()
+    """Return info about GerryPy creator extraordinaires."""
+    with open("gerrypy/static/profiledescs/averydesc.txt") as the_file:
+        averydesc = the_file.read()
+    with open("gerrypy/static/profiledescs/forddesc.txt") as the_file:
+        forddesc = the_file.read()
+    with open("gerrypy/static/profiledescs/juliendesc.txt") as the_file:
+        juliendesc = the_file.read()
+    with open("gerrypy/static/profiledescs/patrickdesc.txt") as the_file:
+        patrickdesc = the_file.read()
+    with open("gerrypy/static/profiledescs/jordandesc.txt") as the_file:
+        jordandesc = the_file.read()
+    with open("gerrypy/static/gerrypydesc.txt") as the_file:
+        gerrypydesc = the_file.read()
     return {
         "averydesc": averydesc,
         "forddesc": forddesc,

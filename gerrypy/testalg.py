@@ -3,9 +3,7 @@
 import pytest
 from pyramid import testing
 from gerrypy.models.mymodel import Tract
-from gerrypy.models.meta import Base
 from gerrypy.test_content import db_session, configuration
-import geoalchemy2
 
 
 @pytest.fixture
@@ -30,7 +28,7 @@ def fill_colorado(dummy_request, filled_graph):
         'compactness': 1
     }
     colorado = State(dummy_request, 1)
-    colorado.fill_state(dummy_request, criteria)
+    colorado.fill_state(criteria)
     return colorado
 
 
@@ -43,7 +41,7 @@ def fill_colorado_multiple_districts(dummy_request, filled_graph):
         'compactness': 1
     }
     colorado = State(dummy_request, 7)
-    colorado.fill_state(dummy_request, criteria)
+    colorado.fill_state(criteria)
     return colorado
 
 

@@ -1,15 +1,12 @@
 import pytest
 import transaction
 from pyramid import testing
-from gerrypy.models.mymodel import Tract, Edge, DistrictView
+from gerrypy.models.mymodel import Tract, Edge
 from gerrypy.models.meta import Base
 from gerrypy.scripts.fish_scales import State, OccupiedDist
 from gerrypy.scripts.assigndistrict import assign_district
-import sys
 import os
 import networkx as nx
-from geoalchemy2 import Geometry
-from gerrypy.views.default import build_JSON
 
 
 @pytest.fixture(scope="session")
@@ -127,7 +124,7 @@ def test_empty_district_nums_after_fill(dummy_request, filled_graph):
         'compactness': 1
     }
     state = State(dummy_request, 1)
-    state.fill_state(dummy_request, criteria)
+    state.fill_state(criteria)
     no_d_id = query.filter(Tract.districtid == None).count()
     assert no_d_id < 1249
 
@@ -159,62 +156,6 @@ def test_assign_district_correct_dist_assigned(dummy_request, filled_graph):
     query = dummy_request.dbsession.query(Tract)
     test_tract = query.filter(Tract.gid == tractid).first()
     assert test_tract.districtid == 3
-
-
-# def test_insert_district_table(dummy_request):
-#     """Test that our code to truncate district table works."""
-#     test_row1 = District(districtid=456,
-#                          population=5000,
-#                          area=200)
-#     test_row2 = District(districtid=789,
-#                          population=5400,
-#                          area=400)
-#     current_length = dummy_request.dbsession.query(District).count()
-#     dummy_request.dbsession.add(test_row1)
-#     dummy_request.dbsession.add(test_row2)
-#     assert dummy_request.dbsession.query(District).count() == current_length + 2
-
-
-# def test_truncate_district_table(dummy_request):
-#     """Test that our code to truncate district table works."""
-#     test_row1 = District(districtid=789,
-#                          population=5000,
-#                          area=200)
-#     test_row2 = District(districtid=111,
-#                          population=5400,
-#                          area=400)
-#     dummy_request.dbsession.add(test_row1)
-#     dummy_request.dbsession.add(test_row2)
-#     dummy_request.dbsession.query(District).delete()
-#     assert dummy_request.dbsession.query(District).count() == 0
-
-
-# def test_populate_district_table(dummy_request, sample_state):
-#     """Test district is correct length after population."""
-#     populate_district_table(dummy_request, sample_state)
-#     query = dummy_request.dbsession.query(District)
-#     assert query.count() == 3
-
-
-# def test_populate_district_table_nonunique_id(dummy_request, sample_state):
-#     """Test populate district adds correct data."""
-#     populate_district_table(dummy_request, sample_state)
-#     query = dummy_request.dbsession.query(District).get(600)
-#     assert query.area == 250420
-
-# =======View Unit Tests ================
-
-
-# def test_build_json_returns_correct_data(dummy_request, cleared_districts):
-#     """Test that build_json builds the proper json."""
-#     tract1 = dummy_request.dbsession.query(Tract).get(1)
-#     tract2 = dummy_request.dbsession.query(Tract).get(2)
-#     tract1.districtid = 1000
-#     tract2.districtid = 1000
-#     import pdb; pdb.set_trace()
-#     returned_json = build_JSON(dummy_request)['geometry']
-#     geojson_db = dummy_request.dbsession.query(DistrictView.geom.ST_AsGeoJSON()).all()[0]
-#     assert returned_json == geojson_db
 
 # =======Functional Tests ================
 
