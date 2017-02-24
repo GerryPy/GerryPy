@@ -30,7 +30,7 @@ def fill_colorado(dummy_request, filled_graph):
         'compactness': 1
     }
     colorado = State(dummy_request, 1)
-    colorado.fill_state(dummy_request, criteria)
+    colorado.fill_state(criteria)
     return colorado
 
 
@@ -43,7 +43,7 @@ def fill_colorado_multiple_districts(dummy_request, filled_graph):
         'compactness': 1
     }
     colorado = State(dummy_request, 7)
-    colorado.fill_state(dummy_request, criteria)
+    colorado.fill_state(criteria)
     return colorado
 
 

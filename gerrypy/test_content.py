@@ -127,7 +127,7 @@ def test_empty_district_nums_after_fill(dummy_request, filled_graph):
         'compactness': 1
     }
     state = State(dummy_request, 1)
-    state.fill_state(dummy_request, criteria)
+    state.fill_state(criteria)
     no_d_id = query.filter(Tract.districtid == None).count()
     assert no_d_id < 1249
 

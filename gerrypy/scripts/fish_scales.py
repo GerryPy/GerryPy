@@ -1,18 +1,19 @@
 """
-Contains objects to pull tract information from database,
-compute new congressional districts,
-and store new information in a separate table.
+Pull tract information from database,
+compute new congressional districts based on criteria in request,
+and update the database.
 """
+
 from gerrypy.models.mymodel import Tract, Edge
 import networkx as nx
 from gerrypy.scripts.assigndistrict import assign_district
 
 
 def fill_graph(request):
-    """Build global graph from tract and edge databases."""
+    """Build state graph from tract and edge databases."""
     graph = nx.Graph()
-    tracts = request.dbsession.query(Tract).all()  # get all tracts from db
-    edges = request.dbsession.query(Edge).all()  # get all edges from db
+    tracts = request.dbsession.query(Tract).all()
+    edges = request.dbsession.query(Edge).all()
     for tract in tracts:
         graph.add_node(tract)
     for edge in edges:
@@ -162,7 +163,8 @@ class State(object):
         self.population = 0
         self.area = 0
         self.num_dst = num_dst
-        self.state_graph = fill_graph(request)
+        self.request = request
+        self.state_graph = fill_graph(self.request)
         landmass = nx.connected_components(self.state_graph)
         for island in landmass:
             unoc = UnoccupiedDist(None, self.state_graph, tracts=island)
@@ -174,7 +176,7 @@ class State(object):
             self.area += unoc.area
         self.target_pop = self.population // num_dst
 
-    def fill_state(self, request, criteria):
+    def fill_state(self, criteria):
         """Build districts until all unoccupied tracts are claimed."""
         for num in range(self.num_dst):
             rem_pop = 0
@@ -183,7 +185,7 @@ class State(object):
             rem_dist = self.num_dst - len(self.districts)
             tgt_population = rem_pop / rem_dist
             self.build_district(tgt_population, num + 1, criteria)
-        assign_district(request, self.state_graph)
+        assign_district(self.request, self.state_graph)
         if self.unoccupied:
             return False
         return True
