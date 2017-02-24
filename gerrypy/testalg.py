@@ -188,9 +188,6 @@ def test_unoc_add_node(filled_graph):
     assert (
         unoc.nodes.nodes().sort(key=lambda t: t.gid) == filled_graph.nodes().sort(key=lambda t: t.gid) and
         unoc.population == node_pop
-        # unoc.population == node_pop and
-        # len(unoc.perimeter) == 36
-        # unoc.perimeter.sort() == filled_graph_perim.sort()
     )
 
 
@@ -268,8 +265,6 @@ def test_unoc_rem_node(filled_graph):
     assert (
         len(unoc.nodes) == len(filled_graph.nodes()) - 1 and
         unoc.population == node_pop
-        # unoc.population == node_pop and
-        # unoc.perimeter.sort() == filled_graph_perim.sort()
     )
 
 

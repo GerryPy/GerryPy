@@ -5,6 +5,7 @@ and store new information in a separate table.
 """
 from gerrypy.models.mymodel import Tract, Edge
 import networkx as nx
+from gerrypy.scripts.assigndistrict import assign_district
 
 
 def fill_graph(request):
@@ -175,8 +176,6 @@ class State(object):
 
     def fill_state(self, request, criteria):
         """Build districts until all unoccupied tracts are claimed."""
-        from gerrypy.graph_db_interact.assigndistrict import assign_district, populate_district_table
-
         for num in range(self.num_dst):
             rem_pop = 0
             for unoc in self.unoccupied:
@@ -185,7 +184,6 @@ class State(object):
             tgt_population = rem_pop / rem_dist
             self.build_district(tgt_population, num + 1, criteria)
         assign_district(request, self.state_graph)
-        populate_district_table(request, self)
         if self.unoccupied:
             return False
         return True
@@ -195,7 +193,7 @@ class State(object):
         dst = OccupiedDist(dist_num, self.state_graph)
         self.districts.append(dst)
         start = self.find_start()
-        self.swap(dst, start) #if state is full, this wont work
+        self.swap(dst, start)  # if state is full, this wont work
         while True:
             new_tract = self.select_next(dst, criteria)
             if new_tract is None:
@@ -228,13 +226,8 @@ class State(object):
 
     def swap(self, dst, new_tract):
         """Exchange tract from unoccupied district to district."""
-        # unoc_dst = None
-        # for island in self.unoccupied:
-        #     if new_tract in island.perimeter:
-        #         unoc_dst = island
         self.unoccupied[0].rem_node(new_tract, self.state_graph)
         dst.add_node(new_tract, self.state_graph)
-        # return unoc_dst
 
     def select_next(self, dst, criteria):
         """Choose the next best tract to add to growing district."""
@@ -275,12 +268,3 @@ class State(object):
                 best_set = unique_dists
                 best = tract
         return best
-
-    def split_unoccupied_dist(self, unoc_dst):
-        """Remove unoccupied dist from State and adds contiguous unoccupied sub-districts."""
-        self.unoccupied.remove(unoc_dst)
-        index = len(self.unoccupied)
-        landmass = nx.connected_components(unoc_dst.nodes)
-        for island in landmass:
-            self.unoccupied.append(UnoccupiedDist(None, self.state_graph, tracts=island))
-        return self.unoccupied[index:]
