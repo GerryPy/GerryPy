@@ -2,6 +2,7 @@
 from pyramid.view import view_config
 from gerrypy.scripts.fish_scales import State
 from gerrypy.models.mymodel import DistrictView
+from gerrypy.scripts.tasks import sample_states
 
 
 @view_config(route_name='home', renderer='../templates/home.jinja2')
@@ -19,6 +20,8 @@ def map_view(request):
             'compactness': request.GET['compactweight']
         }
         num_dst = 7
+        states = sample_states(request, num_dst, 4)
+        import pdb; pdb.set_trace()
         state = State(request, num_dst)
         state.fill_state(criteria)
         with open('gerrypy/views/geo.json', 'w') as the_file:  # Builds the API for GMaps to read.
