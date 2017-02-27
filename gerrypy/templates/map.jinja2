@@ -30,7 +30,7 @@ GerryPy
         </form>
         <div id="map"></div>
     </div>
-    <script id='map-script' data-json={{ request.static_url('gerrypy:views/geo.json') }}>
+    <script id='map-script' data-json={{ request.static_url('gerrypy:static/geo.json') }}>
         var map;
         function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
@@ -48,7 +48,7 @@ GerryPy
         });
 
         {% if geojson %}
-        map.data.loadGeoJson("{{ request.static_url('gerrypy:views/geo.json') }}");
+        map.data.loadGeoJson("{{ request.static_url('gerrypy:static/geo.json') }}");
 
         map.data.setStyle(function(feature) {
           var color = feature.getProperty('color');

@@ -231,6 +231,6 @@ def test_map_page_loads_correct_json(testapp):
     response = testapp.get('/map', get_params, status=200)
     json_url = response.html.find('script').attrs['data-json']
     json_response = testapp.get(json_url, status=200).text
-    with open('gerrypy/views/geo.json', 'r') as the_file:
+    with open('gerrypy/static/geo.json', 'r') as the_file:
         our_json = the_file.read()
     assert our_json == json_response

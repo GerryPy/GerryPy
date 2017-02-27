@@ -21,7 +21,7 @@ def map_view(request):
         num_dst = 7
         state = State(request, num_dst)
         state.fill_state(criteria)
-        with open('gerrypy/views/geo.json', 'w') as the_file:  # Builds the API for GMaps to read.
+        with open('gerrypy/static/geo.json', 'w') as the_file:  # Builds the API for GMaps to read.
             the_file.write(build_JSON(request))
         return {'geojson': 'ready'}
     return {}
